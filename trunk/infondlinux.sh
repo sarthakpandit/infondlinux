@@ -1,10 +1,10 @@
 #!/bin/sh
 # script config infondlinux
-# distributed under licence New BSD Licence
+# distributed under New BSD Licence
 # created by t0ka7a
 # version 0.1
 # this script makes a post-installation on Ubuntu
-# carfeful: the script stops firefox if it is running.
+# careful: the script stops firefox if it is running.
 
 # debian packages
 # - vim 
@@ -23,6 +23,7 @@
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
+# - truecrypt-6.3a-linux-x86
 
 # firefox extensions
 # - livehttpheaders 
@@ -32,17 +33,6 @@
 # - flashblock 
 # - flashgot 
 # - foxyproxy
-
-
-
-#################################
-# TODO
-################################
-
-# firefox -> about:config keyword.URL
-#- configurer xchat et pidgin
-#- configurer proxy tor
-
 
 #####################################
 # function log()
@@ -151,7 +141,7 @@ firefoxadd() (
 2>/dev/null
 
 # catch CTRL-C
-trap "echo ''; echo CTR-C was pressed. Exit; log 'E' 'CTRL-C pressed.; 1>/dev/stdout; exit 1" 2
+trap "echo ''; echo CTR-C was pressed. Exit; log 'E' 'CTRL-C pressed.; exit 1" 2
 
 # create log file if not already created
 echo "****************" >> /usr/share/infond/log/install.log
@@ -192,7 +182,7 @@ if [ -z "$(cat /usr/share/infond/log/install.log | grep dist-upgrade )" ]; then
 fi
 
 #################################
-# basic install
+# apt
 #################################
 
 # tor
@@ -211,7 +201,7 @@ fi
 apt-get update > /dev/null
 log "+" "apt-get update"
 
-# remove useless packages
+# apt remove useless packages
 aptremove gwibber
 aptremove empathy
 aptremove gbrainy
@@ -220,7 +210,7 @@ aptremove evolution
 aptremove quadrapassel
 aptremove totem
 
-# install basic tools
+# apt install
 aptinstall vim
 aptinstall less
 aptinstall gimp
@@ -230,7 +220,6 @@ aptinstall pidgin
 aptinstall tor
 aptinstall vlc
 aptinstall nautilus-open-terminal
-aptinstall nmap
 aptinstall openjdk-6-jre 
 aptinstall bluefish
 aptinstall flashplugin-nonfree
@@ -274,7 +263,6 @@ fi
 
 # modify /etc/xdg/menus/applications.menu
 # the directory /etc/xdg is in $XDG_CONFIG_DIRS (see $ gnome-help)
-
 if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; then
   sed -i '/<!-- Accessories submenu -->/i\
   \
@@ -291,20 +279,51 @@ if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; t
         </And>\
       </Include>\
     </Menu>\
-    <Menu>\
-      <Name>Development</Name>\
-      <Directory>Development.directory</Directory>\
-      <Include>\
-        <And>\
-          <Category>Development</Category>\
-        </And>\
-      </Include>\
-    </Menu>\
+    <Menu>
+      <Name>Accessories</Name>
+      <Directory>Utility.directory</Directory>
+      <Include>
+        <And><Category>Development</Category></And>
+        <And><Category>Encryption</Category></And>
+      </Include>
+    </Menu>
   </Menu>\
   ' /etc/xdg/menus/applications.menu
   log "+" "applications.menu modified"
 else
   log "I" "applications.menu already correct. Not modified."
+fi
+
+##################################
+# nmap
+##################################
+# apt install
+aptinstall nmap
+
+# download icon
+if [ -z "$(ls /usr/share/infond/pictures | grep nmap.png )" ]; then
+  wget "http://www.ansi.tn/gfx/nmap.png" -nc -P /usr/share/infond/pictures/
+  log "+" "nmap icon downloaded"
+else
+  log "I" "nmap icon already exists. Not downloaded."
+fi
+
+# add entry in Gnome menu
+if [ -z "$(ls /usr/share/applications | grep nmap.desktop)" ];then
+  echo "
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=nmap
+Comment=
+Icon=/usr/share/infond/pictures/nmap.png
+Exec=bash -c 'cd /tmp;nmap -h;nmap -V;bash'
+Terminal=true
+Categories=Pentest
+" > /usr/share/applications/nmap.desktop
+  log "+" "nmap.desktop created"
+else
+  log "I" "nmap.desktop already exists. Not updated."
 fi
 
 
@@ -334,8 +353,6 @@ fi
 # create dirbuster.sh and add dirbuster.sh shortcut in /usr/bin
 addBinEntry dirbuster "/usr/share/infond/bin/DirBuster-1.0-RC1" "java -jar DirBuster-1.0-RC1.jar" term
 
-# Rq: about .desktop files, see $ gnome-help , "Fichiers .desktop" 
-
 # add entry in Gnome menu for DirBuster
 if [ -z "$(ls /usr/share/applications | grep dirbuster.desktop)" ];then
   echo "
@@ -352,6 +369,20 @@ Categories=Pentest
   log "+" "dirbuster.desktop created"
 else
   log "I" "dirbuster.desktop already exists. Not updated."
+fi
+
+##################################
+# truecrypt-6.3a-linux-x86
+##################################
+if [ -z "$(ls /usr/share/infond/bin | grep truecrypt)"  ];then
+  wget http://www.truecrypt.org/download/truecrypt-6.3a-linux-x86.tar.gz -nc -P /tmp
+  log "+" "truecrypt-6.3a downloaded"
+  tar xzf /tmp/truecrypt-6.3a-linux-x86.tar.gz -C /usr/share/infond/bin/
+  rm /tmp/truecrypt-6.3a-linux-x86.tar.gz
+  /usr/share/infond/bin/truecrypt-6.3a-setup-x86
+  log "+" "truecrypt-6.3a installed"
+else
+  log "I" "truecrypt-6.3a already downloaded. Not updated."
 fi
 
 
