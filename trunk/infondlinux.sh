@@ -2,7 +2,7 @@
 # script config infondlinux
 # distributed under New BSD Licence
 # created by t0ka7a
-# version 0.1
+# version 0.2
 # this script makes a post-installation on Ubuntu
 # careful: the script stops firefox if it is running.
 
@@ -20,10 +20,12 @@
 # - openjdk-6-jre
 # - bluefish
 # - flash-plugin-nonfree
+# - aircrack-ng
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
-# - truecrypt-6.3a-linux-x86
+# - truecrypt-7.0-linux-x86
+# - metasploit framework 3.4.1-linux-i386
 
 # firefox extensions
 # - livehttpheaders 
@@ -129,6 +131,52 @@ firefoxadd() (
   fi
 )
 
+###########################
+# function downloadicon()
+###########################
+# download picture and create icon
+# @param1: name for the icon
+# @param2: downloading address
+# ex: downloadicon msf http://metasploit.com/icon.jpg
+downloadicon() (
+  if [ -z "$(ls /usr/share/infond/pictures | grep $1.png )" ]; then
+    wget $2 -P /tmp
+    convert -size 48x48 /tmp/$(echo $2|awk -F/ '{print $NF}') -resize 48x48 -extent 48x48 +profile '*' /usr/share/infond/pictures/$1.png
+    log "+" "$1 icon downloaded"
+    rm /tmp/$(echo $2|awk -F/ '{print $NF}')
+  else
+    log "I" "$1 icon already exists. Not downloaded."
+  fi
+)
+
+###########################
+# function addmenu()
+###########################
+# add an entry to gnome menu
+# @param1: name
+# @param2: comment
+# @param3: command line
+# @param4: terminal (true or false)
+# @param5: categorie
+addmenu() (
+  if [ -z "$(ls /usr/share/applications | grep $1.desktop)" ];then
+    echo "
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=$1
+Comment=$2
+Icon=/usr/share/infond/pictures/$1.png
+Exec=$3
+Terminal=$4
+Categories=$5
+" > /usr/share/applications/$1.desktop
+    log "+" "$1.desktop created"
+  else
+    log "I" "$1.desktop already exists. Not updated."
+  fi
+)
+
 #####################################
 # installation start
 #####################################
@@ -231,16 +279,15 @@ aptinstall flashplugin-nonfree
 # see $ gnome-help , (search for keyword ".desktop")
 
 # add pictures (if not already in directory)
-[ -z $( ls /usr/share/infond/pictures | grep infond48x48.jpg ) ] && wget http://3.bp.blogspot.com/_Jna6k5HsSu4/TDH4lKIz1cI/AAAAAAAAAHc/a-P6uy2wHjI/s1600/infond48x48.jpg -P /usr/share/infond/pictures && log "+" "infond picture downloaded"
-[ -z $( ls /usr/share/infond/pictures | grep pentest.png ) ] && wget http://3.bp.blogspot.com/_Jna6k5HsSu4/TDMceNplaqI/AAAAAAAAAHs/iWG1MOPS0uw/s320/pentest.png -P /usr/share/infond/pictures && log "+" "pentest picture downloaded"
+downloadicon infond http://3.bp.blogspot.com/_Jna6k5HsSu4/TDH4lKIz1cI/AAAAAAAAAHc/a-P6uy2wHjI/s1600/infond48x48.jpg
+downloadicon pentest http://3.bp.blogspot.com/_Jna6k5HsSu4/TDMceNplaqI/AAAAAAAAAHs/iWG1MOPS0uw/s320/pentest.png
 
 # add directory entries in /usr/share/infond/desktop-directories
-
 if [ -z "$(ls /usr/share/desktop-directories | grep Infond.directory)" ]; then
   echo "[Desktop Entry]
 Name=Infond
 Comment=Security tools
-Icon=/usr/share/infond/pictures/infond48x48.jpg
+Icon=/usr/share/infond/pictures/infond.png
 Type=Directory
 Categories=Pentest
 " > /usr/share/desktop-directories/Infond.directory
@@ -297,41 +344,22 @@ fi
 ##################################
 # nmap
 ##################################
+
 # apt install
 aptinstall nmap
 
 # download icon
-if [ -z "$(ls /usr/share/infond/pictures | grep nmap.png )" ]; then
-  wget "http://www.ansi.tn/gfx/nmap.png" -nc -P /usr/share/infond/pictures/
-  log "+" "nmap icon downloaded"
-else
-  log "I" "nmap icon already exists. Not downloaded."
-fi
+downloadicon nmap http://www.ansi.tn/gfx/nmap.png
 
 # add entry in Gnome menu
-if [ -z "$(ls /usr/share/applications | grep nmap.desktop)" ];then
-  echo "
-[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Name=nmap
-Comment=
-Icon=/usr/share/infond/pictures/nmap.png
-Exec=bash -c 'cd /tmp;nmap -h;nmap -V;bash'
-Terminal=true
-Categories=Pentest
-" > /usr/share/applications/nmap.desktop
-  log "+" "nmap.desktop created"
-else
-  log "I" "nmap.desktop already exists. Not updated."
-fi
+addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" "Pentest"
 
 
 ##################################
 # dirBuster-1.0-RC1 2009-02-27
 ##################################
 
-# download
+# install
 if [ -z "$(ls /usr/share/infond/bin | grep DirBuster)" ]; then
   wget "http://sourceforge.net/projects/dirbuster/files/DirBuster%20%28jar%20%2B%20lists%29/1.0-RC1/DirBuster-1.0-RC1.tar.bz2/download" -nc -P /tmp
   tar xjvf /tmp/DirBuster* -C /usr/share/infond/bin
@@ -342,49 +370,62 @@ else
 fi
 
 # download icon
-if [ -z "$(ls /usr/share/infond/pictures | grep dirbuster.gif )" ]; then
-  wget "http://a.fsdn.com/con/icons/di/dirbuster@sf.net/ologo.gif" -nc -P /tmp
-  mv -f -u /tmp/ologo.gif /usr/share/infond/pictures/dirbuster.gif
-  log "+" "dirbuster logo downloaded"
-else
-  log "I" "dirbuster logo already exists. Not downloaded."
-fi
+downloadicon dirbuster http://a.fsdn.com/con/icons/di/dirbuster@sf.net/ologo.gif 
 
 # create dirbuster.sh and add dirbuster.sh shortcut in /usr/bin
 addBinEntry dirbuster "/usr/share/infond/bin/DirBuster-1.0-RC1" "java -jar DirBuster-1.0-RC1.jar" term
 
 # add entry in Gnome menu for DirBuster
-if [ -z "$(ls /usr/share/applications | grep dirbuster.desktop)" ];then
-  echo "
-[Desktop Entry]
-Type=Application
-Encoding=UTF-8
-Name=Owasp DirBuster
-Comment=DirBuster is a multi threaded java application designed to brute force directories and files names on web/application servers. Often is the case now of what looks like a web server #in a state of default installation is actually not, and has pages and applications hidden within. DirBuster attempts to find these.
-Icon=/usr/share/infond/pictures/dirbuster.gif
-Exec=dirbuster
-Terminal=true
-Categories=Pentest
-" > /usr/share/applications/dirbuster.desktop
-  log "+" "dirbuster.desktop created"
-else
-  log "I" "dirbuster.desktop already exists. Not updated."
-fi
+addmenu dirbuster "DirBuster is a multi threaded java application designed to brute force directories and files names on web/application servers. Often is the case now of what looks like a web server #in a state of default installation is actually not, and has pages and applications hidden within. DirBuster attempts to find these." dirbuster "true" "Pentest"
 
 ##################################
-# truecrypt-6.3a-linux-x86
+# truecrypt-7.0-linux-x86
 ##################################
+
+#install
 if [ -z "$(ls /usr/share/infond/bin | grep truecrypt)"  ];then
-  wget http://www.truecrypt.org/download/truecrypt-6.3a-linux-x86.tar.gz -nc -P /tmp
-  log "+" "truecrypt-6.3a downloaded"
-  tar xzf /tmp/truecrypt-6.3a-linux-x86.tar.gz -C /usr/share/infond/bin/
-  rm /tmp/truecrypt-6.3a-linux-x86.tar.gz
-  /usr/share/infond/bin/truecrypt-6.3a-setup-x86
-  log "+" "truecrypt-6.3a installed"
+  wget http://www.truecrypt.org/download/truecrypt-7.0-linux-x86.tar.gz -nc -P /tmp
+  log "+" "truecrypt-7.0 downloaded"
+  tar xzf /tmp/truecrypt-7.0-linux-x86.tar.gz -C /usr/share/infond/bin/
+  rm /tmp/truecrypt-7.0-linux-x86.tar.gz
+  /usr/share/infond/bin/truecrypt-7.0-setup-x86
+  log "+" "truecrypt-7.0 installed"
 else
-  log "I" "truecrypt-6.3a already downloaded. Not updated."
+  log "I" "truecrypt-7.0 already downloaded. Not updated."
 fi
 
+##################################
+# - metasploit framework 3.4.1-linux-i386
+##################################
+
+# install
+if [ -z "$(ls /usr/share/infond/bin | grep framework-3.4.1)"  ];then
+  wget http://www.metasploit.com/releases/framework-3.4.1-linux-i686.run -nc -P /usr/share/infond/bin/
+  log "+" "metasploit framework 3.4.1 downloaded"
+  bash /usr/share/infond/bin/framework-3.4.1-linux-i686.run 
+  log "+" "metasploit framework 3.4.1 installed"
+else
+  log "I" "metasploit framework 3.4.1 already downloaded. Not updated."
+fi
+
+# download icon
+downloadicon msfconsole http://www.metasploit.com/images/hax_small.jpg
+
+# add msfconsole entry in Gnome menu
+addmenu msfconsole "The Metasploit Framework is both a penetration testing system and a development platform for creating security tools and exploits." "bash -c 'echo msfconsole;msfconsole -v;msfconsole'" "true" "Pentest" 
+
+###########################
+# aircrack-ng
+###########################
+
+# apt install
+aptinstall aircrack-ng
+
+# download icon
+downloadicon aircrack http://www.hebertphp.net/wordpress/wp-content/uploads/2009/07/wifi.jpg 
+
+# add entry in Gnome menu
+addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program that can recover keys once enough data packets have been captured. It implements the standard FMS attack along with some optimizations like KoreK attacks, as well as the all-new PTW attack, thus making the attack much faster compared to other WEP cracking tools. In fact, Aircrack-ng is a set of tools for auditing wireless networks." "bash -c 'cd /tmp;aircrack-ng --help;bash'" "true" "Pentest"
 
 ###########################
 # firefox extensions
