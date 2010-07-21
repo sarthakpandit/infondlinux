@@ -21,6 +21,7 @@
 # - bluefish
 # - flash-plugin-nonfree
 # - aircrack-ng
+# - wireshark
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
@@ -177,6 +178,17 @@ Categories=$5
   fi
 )
 
+
+###########################
+# function addcategory()
+###########################
+# add a category to .desktop file
+# @param1: name
+# @param2: category
+addcategory() (
+[ -z $(cat /usr/share/applications/$1.desktop | grep $2) ] && sed -i "/Categories/s|$|$2;|" /usr/share/applications/$1.desktop
+)
+
 #####################################
 # installation start
 #####################################
@@ -262,15 +274,19 @@ aptremove totem
 aptinstall vim
 aptinstall less
 aptinstall gimp
-aptinstall wipe
-aptinstall xchat
-aptinstall pidgin
 aptinstall tor
 aptinstall vlc
 aptinstall nautilus-open-terminal
 aptinstall openjdk-6-jre 
-aptinstall bluefish
 aptinstall flashplugin-nonfree
+aptinstall bluefish
+aptinstall xchat
+aptinstall pidgin
+
+# add category to .desktop
+addcategory bluefish Accessories
+addcategory xchat Accessories
+addcategory pidgin Accessories
 
 ##################################
 # menu GNOME
@@ -330,8 +346,7 @@ if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; t
       <Name>Accessories</Name>
       <Directory>Utility.directory</Directory>
       <Include>
-        <And><Category>Development</Category></And>
-        <And><Category>Encryption</Category></And>
+        <And><Category>Accessories</Category></And>
       </Include>
     </Menu>
   </Menu>\
@@ -394,6 +409,9 @@ else
   log "I" "truecrypt-7.0 already downloaded. Not updated."
 fi
 
+# add category to gnome menu
+addcategory truecrypt Accessories
+
 ##################################
 # - metasploit framework 3.4.1-linux-i386
 ##################################
@@ -413,6 +431,20 @@ downloadicon msfconsole http://www.metasploit.com/images/hax_small.jpg
 
 # add msfconsole entry in Gnome menu
 addmenu msfconsole "The Metasploit Framework is both a penetration testing system and a development platform for creating security tools and exploits." "bash -c 'echo msfconsole;msfconsole -v;msfconsole'" "true" "Pentest" 
+
+###########################
+# wipe
+###########################
+
+# apt install
+aptinstall wipe
+
+# download icon
+downloadicon wipe http://i26.tinypic.com/141o2nt.jpg
+
+# add entry in Gnome menu
+addmenu wipe "securely erase files from magnetic media." "bash -c 'cd /tmp;wipe -h;bash'" "true" "Accessories"
+
 
 ###########################
 # aircrack-ng
