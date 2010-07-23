@@ -22,6 +22,8 @@
 # - flash-plugin-nonfree
 # - aircrack-ng
 # - wireshark
+# - ruby
+# - ascii
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
@@ -282,6 +284,7 @@ aptinstall flashplugin-nonfree
 aptinstall bluefish
 aptinstall xchat
 aptinstall pidgin
+aptinstall ruby
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -444,6 +447,19 @@ downloadicon wipe http://i26.tinypic.com/141o2nt.jpg
 
 # add entry in Gnome menu
 addmenu wipe "securely erase files from magnetic media." "bash -c 'cd /tmp;wipe -h;bash'" "true" "Accessories"
+
+###########################
+# ascii
+###########################
+
+# apt install
+aptinstall ascii
+
+# download icon
+downloadicon ascii http://ascii-table.com/img/table.gif
+
+# add entry in Gnome menu
+addmenu ascii "table ascii." "bash -c 'ascii -h;bash'" "true" "Accessories"
 
 
 ###########################
