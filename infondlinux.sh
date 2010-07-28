@@ -24,6 +24,7 @@
 # - wireshark
 # - ruby
 # - ascii
+# - httrack
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
@@ -262,6 +263,8 @@ fi
 # update
 apt-get update > /dev/null
 log "+" "apt-get update"
+apt-get upgrade
+log "+" "apt-get upgrade"
 
 # apt remove useless packages
 aptremove gwibber
@@ -474,6 +477,20 @@ downloadicon aircrack http://www.hebertphp.net/wordpress/wp-content/uploads/2009
 
 # add entry in Gnome menu
 addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program that can recover keys once enough data packets have been captured. It implements the standard FMS attack along with some optimizations like KoreK attacks, as well as the all-new PTW attack, thus making the attack much faster compared to other WEP cracking tools. In fact, Aircrack-ng is a set of tools for auditing wireless networks." "bash -c 'cd /tmp;aircrack-ng --help;bash'" "true" "Pentest"
+
+###########################
+# httrack
+###########################
+
+# apt install
+aptinstall httrack
+
+# download icon
+downloadicon httrack http://thumbs1-fr.logicielsfr.com/199-httrack/box/box.jpg
+
+# add entry in Gnome menu
+addmenu httrack "httrack - offline browser : copy websites to a local directory." "bash -c 'cd /tmp;httrack -h;bash'" "true" "Accessories"
+
 
 ###########################
 # firefox extensions
