@@ -27,6 +27,7 @@
 # - httrack
 # - socat
 # - nasm
+# - w3af
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
@@ -380,6 +381,16 @@ downloadicon nmap http://www.ansi.tn/gfx/nmap.png
 
 # add entry in Gnome menu
 addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" "Pentest"
+
+##################################
+# w3af
+##################################
+
+# apt install
+aptinstall w3af
+
+# add entry in Gnome menu
+addcategory w3af Pentest
 
 ##################################
 # hextoasm
