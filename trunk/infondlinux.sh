@@ -26,11 +26,15 @@
 # - ascii
 # - httrack
 # - socat
+# - nasm
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
 # - truecrypt-7.0-linux-x86
 # - metasploit framework 3.4.1-linux-i386
+
+# home made scripts
+# - hextoasm
 
 # firefox extensions
 # - livehttpheaders 
@@ -100,7 +104,7 @@ addBinEntry() (
 # remove package using apt
 aptremove() ( 
   # if package not installed
-  [ -z $(dpkg --list $1 | grep ii) ] && log "I" "$1 not installed. can't be removed" && return 1
+  [ -z $(	dpkg --list $1 | grep ii) ] && log "I" "$1 not installed. can't be removed" && return 1
   # remove package
   apt-get --auto-remove -y --allow-unauthenticated remove $1
   # if package well removed
@@ -289,6 +293,7 @@ aptinstall bluefish
 aptinstall xchat
 aptinstall pidgin
 aptinstall ruby
+aptinstall nasm
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -376,6 +381,46 @@ downloadicon nmap http://www.ansi.tn/gfx/nmap.png
 # add entry in Gnome menu
 addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" "Pentest"
 
+##################################
+# hextoasm
+##################################
+# script to print asm instructions from a hex string
+echo 'usage() (
+  echo "********************************************************"
+  echo "* script adapted from a tip by ivanlef0u               *"
+  echo "* written by t0ka7a for infondlinux                    *"
+  echo "* http://infond.blogspot.com                           *"
+  echo "*                                                      *"
+  echo "* prints asm instructions from an hex strings          *"
+  echo "*                                                      *"
+  echo "* ex:                                                  *"
+  echo "* $ hextoasm "\x90\x31\x90\x90\xea\x42\x42\x42"        *"
+  echo "* 00000000  90                nop                      *"
+  echo "* 00000001  319090EA4242      xor \eax+0x4242ea90],edx *"
+  echo "* 00000007  42                inc edx                  *"
+  echo "********************************************************"
+  echo
+)
+
+# help
+[ $1 = "-h" ] && usage && exit 0
+
+# test nb of arguments
+[ $# != 1 ] && echo one argument needed && exit -1
+
+# test nasm installed
+[ -z "$(dpkg --list nasm | grep ii)" ] && echo "please install nasm:  apt-get install nasm" && exit -1
+
+python -c "print \"$1\"" | tr -d "\r\n" | ndisasm -u -
+' > /usr/share/infond/bin/hextoasm
+chmod +x /usr/share/infond/bin/hextoasm
+ln -s /usr/share/infond/bin/hextoasm /usr/bin/hextoasm
+
+# download icon
+downloadicon hextoasm http://info.sio2.be/python/1/images/assembler.png
+ 
+# add entry in Gnome menu for DirBuster
+addmenu hextoasm "prints asm instructions from an hex strings ." "bash -c 'cd /tmp;hextoasm -h;bash'" "true" "Accessories"
 
 ##################################
 # dirBuster-1.0-RC1 2009-02-27
