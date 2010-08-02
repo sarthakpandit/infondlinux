@@ -45,6 +45,7 @@
 # - flashblock 
 # - flashgot 
 # - foxyproxy
+# - useragentswitcher
 
 #####################################
 # function log()
@@ -576,6 +577,7 @@ firefoxadd noscript 722
 firefoxadd flashblock 433
 firefoxadd flashgot 220
 firefoxadd foxyproxy 2464
+firefoxadd useragentswitcher 59
 
 # tamper_data-11.0.1-fx
 # does not use "latest" address. Must download specific version.
