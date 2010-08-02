@@ -25,6 +25,7 @@
 # - ruby
 # - ascii
 # - httrack
+# - socat
 
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
@@ -450,6 +451,19 @@ downloadicon wipe http://i26.tinypic.com/141o2nt.jpg
 
 # add entry in Gnome menu
 addmenu wipe "securely erase files from magnetic media." "bash -c 'cd /tmp;wipe -h;bash'" "true" "Accessories"
+
+###########################
+# socat
+###########################
+
+# apt install
+aptinstall socat
+
+# download icon
+downloadicon socat http://2.bp.blogspot.com/_Jna6k5HsSu4/TFaaYRZYx1I/AAAAAAAAAH0/mwnHBGIMP0U/s1600/socat.png
+
+# add entry in Gnome menu
+addmenu socat "Multipurpose relay (SOcket CAT)." "bash -c 'cd /tmp;socat -h;echo ex: socat tcp4-listen:2121,reuseaddr,fork tcp-connect:www.google.com:80;bash'" "true" "Accessories"
 
 ###########################
 # ascii
