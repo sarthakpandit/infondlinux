@@ -33,6 +33,7 @@
 # - dirBuster-1.0-RC1 2009-02-27
 # - truecrypt-7.0-linux-x86
 # - metasploit framework 3.4.1-linux-i386
+# - webscarab
 
 # home made scripts
 # - hextoasm
@@ -46,6 +47,11 @@
 # - flashgot 
 # - foxyproxy
 # - useragentswitcher
+
+######################################################
+# trick to know: to share the current directory:
+# $ sudo python -m SimpleHTTPServer 8080
+######################################################
 
 #####################################
 # function log()
@@ -71,7 +77,7 @@ log() (
 #     creates a file dirbuster.sh in /usr/share/infond/bin
 addBinEntry() (
   # exit if file already in /usr/bin
-  [ -z $(ls /usr/bin | grep $1.sh ) ] && log "I" "$1 already in /usr/bin. Not added." && return 1
+  [ ! -z $(ls /usr/bin | grep $1.sh ) ] && log "I" "$1 already in /usr/bin. Not added." && return 1
   
   echo "#!/bin/sh" > /usr/share/infond/bin/$1.sh
   echo "\n\
@@ -456,6 +462,34 @@ addBinEntry dirbuster "/usr/share/infond/bin/DirBuster-1.0-RC1" "java -jar DirBu
 
 # add entry in Gnome menu for DirBuster
 addmenu dirbuster "DirBuster is a multi threaded java application designed to brute force directories and files names on web/application servers. Often is the case now of what looks like a web server #in a state of default installation is actually not, and has pages and applications hidden within. DirBuster attempts to find these." dirbuster "true" "Pentest"
+
+##################################
+# webscarab
+##################################
+
+# install
+if [ -z "$(ls /usr/share/infond/bin | grep webscarab)" ]; then
+  rm /tmp/webscarab*
+  wget "http://dawes.za.net/rogan/webscarab/webscarab-current.zip" -nc -P /tmp
+  unzip /tmp/webscarab-current.zip -d /tmp
+read toto
+  rm /tmp/webscarab-current.zip
+  mv /tmp/webscarab* /usr/share/infond/bin/webscarab/
+read toto
+  log "+" "webscarab downloaded"
+else
+  log "I" "webscarab already in /usr/share/infond/bin. Not downloaded."
+fi
+
+# download icon
+downloadicon webscarab http://www.owasp.org/skins/monobook/ologo.gif 
+
+# create webscarab.sh and add webscarab.sh shortcut in /usr/bin
+addBinEntry webscarab "/usr/share/infond/bin/webscarab" "java -jar webscarab.jar" term
+
+# add entry in Gnome menu for DirBuster
+addmenu webscarab "WebScarab is a framework for analysing applications that communicate using the HTTP and HTTPS protocols." webscarab "true" "Pentest"
+
 
 ##################################
 # truecrypt-7.0-linux-x86
