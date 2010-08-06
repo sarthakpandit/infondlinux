@@ -13,7 +13,6 @@
 # - wipe 
 # - xchat 
 # - pidgin 
-# - tor 
 # - vlc 
 # - nautilus-open-terminal
 # - nmap
@@ -29,12 +28,18 @@
 # - nasm
 # - w3af
 
+# third party packages
+# - tor
+# - virtualbox 3.2
+
 # manually downloaded softwares and version
 # - dirBuster-1.0-RC1 2009-02-27
 # - truecrypt-7.0-linux-x86
 # - metasploit framework 3.4.1-linux-i386
 # - webscarab
 # - burp suite v1.3.03
+# - paros 3.2.13
+# - jmeter 2.4
 
 # home made scripts
 # - hextoasm
@@ -274,6 +279,7 @@ if [ -z "$(cat /etc/apt/sources.list | grep torproject)" ]; then
   echo "deb http://deb.torproject.org/torproject.org lucid main" >> /etc/apt/sources.list
   gpg --keyserver keys.gnupg.net --recv 886DDD89
   gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
+  apt-get update
   log "+" "tor added to apt sources list"
 else
   log "I" "tor already in apt sources list. Not added"
@@ -518,8 +524,34 @@ downloadicon webscarab http://www.owasp.org/skins/monobook/ologo.gif
 # create webscarab.sh and add webscarab.sh shortcut in /usr/bin
 addBinEntry webscarab "java -jar /usr/share/infond/bin/webscarab/webscarab.jar"
 
-# add entry in Gnome menu for DirBuster
+# add entry in Gnome menu
 addmenu webscarab "WebScarab is a framework for analysing applications that communicate using the HTTP and HTTPS protocols." webscarab "true" "Pentest"
+
+##################################
+# jmeter 2.4
+##################################
+
+# install
+if [ -z "$(ls /usr/share/infond/bin | grep jmeter)" ]; then
+  rm -r /tmp/jmeter*
+  wget "http://apache.crihan.fr/dist/jakarta/jmeter/binaries/jakarta-jmeter-2.4.tgz" -nc -P /tmp
+  tar xzf /tmp/jakarta-jmeter-2.4.tgz -C /tmp
+  rm /tmp/*jmeter*.tgz
+  mkdir /usr/share/infond/bin/jmeter
+  mv /tmp/*jmeter* /usr/share/infond/bin/jmeter/
+  log "+" "jmeter downloaded"
+else
+  log "I" "jmeter already in /usr/share/infond/bin. Not downloaded."
+fi
+
+# download icon
+downloadicon jmeter http://jakarta.apache.org/jmeter/images/logo.jpg 
+
+# create webscarab.sh and add webscarab.sh shortcut in /usr/bin
+addBinEntry jmeter "java -jar /usr/share/infond/bin/jmeter/jakarta-jmeter-2.4/bin/ApacheJMeter.jar"
+
+# add entry in Gnome menu
+addmenu jmeter "Apache JMeter may be used to test performance both on static and dynamic resources (files, Servlets, Perl scripts, Java Objects, Data Bases and Queries, FTP Servers and more). It can be used to simulate a heavy load on a server, network or object to test its strength or to analyze overall performance under different load types. You can use it to make a graphical analysis of performance or to test your server/script/object behavior under heavy concurrent load." jmeter "true" "Pentest"
 
 
 ##################################
@@ -540,6 +572,56 @@ fi
 
 # add category to gnome menu
 addcategory truecrypt Accessories
+
+
+##################################
+# virtualbox 3.2
+##################################
+
+# add non-free repository to apt
+if [ -z "$(cat /etc/apt/sources.list | grep virtualbox)" ]; then
+  echo "" >> /etc/apt/sources.list
+  echo "## virtualbox" >> /etc/apt/sources.list
+  echo "deb http://download.virtualbox.org/virtualbox/debian lucid non-free" >> /etc/apt/sources.list
+  wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | apt-key add -
+  apt-get update
+  log "+" "virtualbox added to apt sources list"
+else
+  log "I" "virtualbox already in apt sources list. Not added"
+fi
+
+# apt install
+aptinstall virtualbox-3.2
+
+# add virtualbox to gnome infond menu
+addcategory virtualbox Accessories
+
+
+##################################
+# - paros 3.2.13
+##################################
+
+# install
+if [ -z "$(ls /usr/share/infond/bin | grep paros)" ]; then
+  rm -r /tmp/paros*
+  wget "http://downloads.sourceforge.net/project/paros/Paros/Version%203.2.13/paros-3.2.13-unix.zip" -nc -P /tmp
+  unzip /tmp/paros*.zip -d /tmp
+  rm /tmp/paros*.zip
+  mv /tmp/paros* /usr/share/infond/bin/paros/
+  log "+" "paros downloaded"
+else
+  log "I" "paros already in /usr/share/infond/bin. Not downloaded."
+fi
+
+# download icon
+downloadicon paros http://securitytnt.com/wp-content/uploads/2007/03/paros.png 
+
+# create paros.sh and paros.sh shortcut in /usr/bin
+addBinEntry paros "cd /usr/share/infond/bin/paros;java -jar paros.jar"
+
+# add entry in Gnome menu
+addmenu paros "A Java based HTTP/HTTPS proxy for assessing web application vulnerability. It supports editing/viewing HTTP messages on-the-fly. Other featuers include spiders, client certificate, proxy-chaining, intelligent scanning for XSS and SQL injections etc. " paros "true" "Pentest"
+
 
 ##################################
 # - metasploit framework 3.4.1-linux-i386
@@ -655,5 +737,13 @@ fi
 
 # install firefox addons
 firefox -silent -offline
+
+###########################
+# conclusion
+###########################
+
+# chmod other every files in infond
+chown root:root /usr/share/infond -R
+chmod -R 775 /usr/share/infond
 
 # EOF
