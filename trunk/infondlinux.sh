@@ -27,9 +27,11 @@
 # - socat
 # - nasm
 # - w3af
+# - subversion
 
 # third party packages
 # - tor
+# - tor-geoipdb
 # - virtualbox 3.2
 
 # manually downloaded softwares and version
@@ -52,12 +54,20 @@
 # - flashblock 
 # - flashgot 
 # - foxyproxy
-# - useragentswitcher
 
 ######################################################
 # trick to know: to share the current directory:
 # $ sudo python -m SimpleHTTPServer 8080
 ######################################################
+
+
+
+#####################################
+# define username
+#####################################
+
+# define username (script started sudo!)
+id=$(ls /home)
 
 #####################################
 # function log()
@@ -146,16 +156,24 @@ aptinstall() (
 #################################
 # function firefoxadd()
 #################################
-# download firefox extension .xpi into /usr/lib/firefox-addons/extensions
-# firefox will install it at next sudo start
+# download firefox extension .xpi into ~/.mozilla/firefox/*.default/extensions/
+# it is possible to install extension into /usr/lib/firefox-addons/extensions
+# firefox will install it at next start
 # @param1: name of the extension
 # @param2: number of extension on addons.mozilla.org 
 firefoxadd() (
-  if [ -z "$(ls -R /usr/lib/firefox-addons/extensions | grep $1)" ]; then 
-    wget https://addons.mozilla.org/en-US/firefox/downloads/latest/$2/addon-$2-latest.xpi -nc -P /usr/lib/firefox-addons/extensions
-    log "+" "$1 ready to install."
+  if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep $1)" ]; then 
+    # download
+    wget https://addons.mozilla.org/en-US/firefox/downloads/latest/$2/addon-$2-latest.xpi -nc -P ~/.mozilla/firefox/*.default/extensions/
+    # give access to current user
+    chown $id:$id ~/.mozilla -R
+    log "+" "chown $id:$id ~/mozilla -R fait"
+    # install addon
+    firefox -silent -offline
+    # log
+    log "+" "$1 firefox extension installed."
   else
-   log "I" "$1 already installed. .xpi not downloaded."
+   log "I" "$1 firefox extension already installed. .xpi not downloaded."
   fi
 )
 
@@ -268,21 +286,38 @@ if [ -z "$(cat /usr/share/infond/log/install.log | grep dist-upgrade )" ]; then
   reboot
 fi
 
+
+#################################
+# further installs
+#################################
+
+# close firefox (necessary to install firefox extensions)
+[ ! -z $(pidof firefox-bin) ] && kill -9 $(pidof firefox-bin)
+
 #################################
 # apt
 #################################
 
-# tor
+# add Commercial repository
+if [ -z "$(cat /etc/apt/sources.list | grep Commercial)" ]; then
+  echo "" >> /etc/apt/sources.list
+  echo "## Commercial" >> /etc/apt/sources.list
+  echo "deb http://archive.canonical.com/ubuntu lucid partner" >> /etc/apt/sources.list
+  log "+" "repository Commercial added to apt sources list"
+else
+  log "I" "repository Commercial already in apt sources list. Not added"
+fi
+
+# add torproject repository
 if [ -z "$(cat /etc/apt/sources.list | grep torproject)" ]; then
   echo "" >> /etc/apt/sources.list
   echo "## tor" >> /etc/apt/sources.list
   echo "deb http://deb.torproject.org/torproject.org lucid main" >> /etc/apt/sources.list
   gpg --keyserver keys.gnupg.net --recv 886DDD89
   gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
-  apt-get update
-  log "+" "tor added to apt sources list"
+  log "+" "repository torproject added to apt sources list"
 else
-  log "I" "tor already in apt sources list. Not added"
+  log "I" "repository torproject already in apt sources list. Not added"
 fi
 
 # update
@@ -305,6 +340,7 @@ aptinstall vim
 aptinstall less
 aptinstall gimp
 aptinstall tor
+aptinstall tor-geoipdb
 aptinstall vlc
 aptinstall nautilus-open-terminal
 aptinstall sun-java6-plugin 
@@ -314,6 +350,7 @@ aptinstall xchat
 aptinstall pidgin
 aptinstall ruby
 aptinstall nasm
+aptinstall subversion
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -374,13 +411,13 @@ if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; t
         </And>\
       </Include>\
     </Menu>\
-    <Menu>
-      <Name>Accessories</Name>
-      <Directory>Utility.directory</Directory>
-      <Include>
-        <And><Category>Accessories</Category></And>
-      </Include>
-    </Menu>
+    <Menu>\
+      <Name>Accessories</Name>\
+      <Directory>Utility.directory</Directory>\
+      <Include>\
+        <And><Category>Accessories</Category></And>\
+      </Include>\
+    </Menu>\
   </Menu>\
   ' /etc/xdg/menus/applications.menu
   log "+" "applications.menu modified"
@@ -714,9 +751,6 @@ addmenu httrack "httrack - offline browser : copy websites to a local directory.
 # firefox extensions
 ###########################
 
-# close firefox
-[ ! -z $(pidof firefox-bin) ] && kill -9 $(pidof firefox-bin)
-
 # download and install firefox extensions
 firefoxadd firebug 1843
 firefoxadd livehttpheaders 3829
@@ -724,26 +758,34 @@ firefoxadd noscript 722
 firefoxadd flashblock 433
 firefoxadd flashgot 220
 firefoxadd foxyproxy 2464
-firefoxadd useragentswitcher 59
+# installation of useragentswitcher does not work. why????
+# must be manually installed
+#firefoxadd useragentswitcher 59
 
 # tamper_data-11.0.1-fx
-# does not use "latest" address. Must download specific version.
-if [ -z "$(ls -R /usr/lib/firefox-addons/extensions | grep tamperdata)" ]; then 
-  wget https://addons.mozilla.org/fr/firefox/downloads/file/79565/tamper_data-11.0.1-fx.xpi -nc -P /usr/lib/firefox-addons/extensions
-  log "+" "tamper_data ready to install."
+# does not use "latest" address in mozilla repo. 
+# We must download specific version.
+if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep tamperdata)" ]; then 
+  # download
+  wget https://addons.mozilla.org/fr/firefox/downloads/file/79565/tamper_data-11.0.1-fx.xpi -nc -P ~/.mozilla/firefox/*.default/extensions
+  # give access to current user
+  chown $id:$id ~/.mozilla -R
+  log "+" "chown $id:$id ~/mozilla -R fait"
+  # install addon
+  firefox -silent -offline
+  # log
+  log "+" "tamper_data firefox extension installed."
 else
  log "I" "tamper_data already installed. .xpi not downloaded."
 fi
-
-# install firefox addons
-firefox -silent -offline
 
 ###########################
 # conclusion
 ###########################
 
-# chmod other every files in infond
-chown root:root /usr/share/infond -R
-chmod -R 775 /usr/share/infond
+# chmod every other files in infond
+id=$(ls /home)
+chown $id:$id /usr/share/infond -R
+chmod -R 744 /usr/share/infond
 
 # EOF
