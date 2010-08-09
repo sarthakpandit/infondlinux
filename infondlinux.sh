@@ -16,7 +16,7 @@
 # - vlc 
 # - nautilus-open-terminal
 # - nmap
-# - sun-java6-plugin et jre
+# - sun-java6-plugin et jre et jdk
 # - bluefish
 # - flash-plugin-nonfree
 # - aircrack-ng
@@ -344,6 +344,7 @@ aptinstall tor-geoipdb
 aptinstall vlc
 aptinstall nautilus-open-terminal
 aptinstall sun-java6-plugin 
+aptinstall sun-java6-jdk
 aptinstall flashplugin-nonfree
 aptinstall bluefish
 aptinstall xchat
