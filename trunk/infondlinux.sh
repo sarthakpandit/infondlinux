@@ -50,13 +50,13 @@
 
 # manually downloaded softwares and version
 # - dirBuster (1.0-RC1)
-# - truecrypt (7.0)
+# - truecrypt (7.0a)
 # - metasploit framework (3.4.1)
 # - webscarab (latest)
 # - burp suite (1.3.03)
-# - paros (3.2.13)
+# - parosproxy (3.2.13)
 # - jmeter (2.4)
-# - rips (0.32)
+# - rips (0.34)
 # - google-chrome (latest)
 # - origami-pdf (latest)
 # - pdfid.py (0.0.11)
@@ -65,6 +65,8 @@
 
 # home made scripts
 # - hextoasm
+# - md5crack.py (written by Corbiero)
+# - chartoascii.py
 
 # firefox extensions
 # - livehttpheaders 
@@ -132,7 +134,7 @@ addBinEntry() (
     log "+" "$1.sh created in /usr/share/Infond/bin/."
 
     # make $1.sh executable
-    chmod +x /usr/share/Infond/mbin/$1.sh 
+    chmod +x /usr/share/Infond/bin/$1.sh 
     log "+" "$1.sh chmod +x"
 
   else
@@ -520,6 +522,67 @@ addcategory wireshark Pentest
 
 
 ##################################
+# md5crack.py - written by Corbiero
+##################################
+
+echo '
+import urllib, re , sys
+
+# tool written by Corbiero
+# 2010
+
+# md5crack.com
+params = urllib.urlencode({"term": sys.argv[1]})
+print "Try to crack "+ sys.argv[1] +" on md5crack.com"
+f = urllib.urlopen("http://md5crack.com/crackmd5.php", params)
+y = f.read()
+if re.match("(.*)Found: (.*)</div>\\n(.*)",y,re.DOTALL):
+	print re.match("(.*)Found: (.*)</div>\\n(.*)",y,re.DOTALL).group(2)
+	
+# passcracking.com
+params = urllib.urlencode({"datafromuser": sys.argv[1]})
+print "Try to crack "+ sys.argv[1] +" on passcracking.com"
+f = urllib.urlopen("http://passcracking.ru/index.php", params)
+y = f.read()
+if re.match("(.*)<td>md5 Database</td><td>(.*)</td><td bgcolor=#FF0000>(.*)</td><td>",y,re.DOTALL):
+	print "Password: " + re.match("(.*)<td>md5 Database</td><td>(.*)</td><td bgcolor=#FF0000>(.*)</td><td>",y,re.DOTALL).group(3)
+	
+# md5.my-addr.com
+params = urllib.urlencode({"md5": sys.argv[1]})
+print "Try to crack "+ sys.argv[1] +" on md5.my-addr.com"
+f = urllib.urlopen("http://md5.my-addr.com/md5_decrypt-md5_cracker_online/md5_decoder_tool.php", params)
+y = f.read()
+if re.match("(.*)Hashed string</span>: (.*)</div>\\n<br>(.*)",y,re.DOTALL):
+	print "Password: " + re.match("(.*)Hashed string</span>: (.*)</div>\\n<br>(.*)",y,re.DOTALL).group(2)
+' > /usr/share/Infond/bin/md5crack.py
+
+addBinEntry md5crack "python /usr/share/Infond/bin/md5crack.py \$1"
+
+downloadicon md5crack http://www.hamza.ma/wp-content/uploads/2008/07/cracker.jpg
+
+addmenu md5crack "md5crack is a tool written in Python by Corbiero. It sends a request to different websites which provide plain text given a md5 hash." "bash -c 'cd /tmp;echo example: $ md5crack 286755fad04869ca523320acce0dc6a4;bash;'" "true" "Accessories" 
+
+##################################
+# chartoascii.py - written by Corbiero
+##################################
+
+echo "
+import sys
+# script to encode a string in ascii
+output = '0x'
+for c in sys.argv[1]:
+	output += str(hex(ord(c))[2:])
+print output
+" > /usr/share/Infond/bin/chartoascii.py
+
+addBinEntry chartoascii "python /usr/share/Infond/bin/chartoascii.py \$1"
+
+downloadicon chartoascii http://www.prntrkmt.org/hieroglyphs/monoliterals/pict/bwvulture.gif
+
+addmenu chartoascii "script to encode a string in ascii." "bash -c 'cd /tmp;echo example: $ chartoascii mystring;bash;'" "true" "Accessories" 
+
+
+##################################
 # hextoasm
 ##################################
 # script to print asm instructions from a hex string
@@ -567,15 +630,18 @@ aptinstall mercurial
 aptinstall libopenssl-ruby
 aptinstall ruby-gnome2
 if [ -z "$(ls /usr/share/Infond/bin | grep origami-pdf)" ]; then
-  hg clone https://origami-pdf.googlcode.com/hg/ /usr/share/Infond/bin/origami-pdf
-  cp /usr/share/Infond/bin/origami-pdf/origami* /usr/lib/ruby/1.8
+  hg clone https://origami-pdf.googlecode.com/hg/ /usr/share/Infond/bin/origami-pdf
+  cp -r /usr/share/Infond/bin/origami-pdf/origami* /usr/lib/ruby/1.8
   chown -R root: /usr/lib/ruby/1.8/origami
-  downloadicon http://1.bp.blogspot.com/_Jna6k5HsSu4/THY_Oo1e1dI/AAAAAAAAAIM/8RVTDhG3d98/s200/origami.jpg
-  addmenu origami "ruby framework for pdf generation" "bash -c 'cd /tmp;cat /usr/share/Infond/bin/origami-pdf/samples/README;echo samples available in /usr/share/Infond/bin/origami-pdf/samples;'" "true" pdf
   log "+" "origami-pdf installed"
 else
   log "I" "origami-pdf already in /usr/share/Infond/bin. Not downloaded."
 fi
+
+downloadicon origami http://1.bp.blogspot.com/_Jna6k5HsSu4/THY_Oo1e1dI/AAAAAAAAAIM/8RVTDhG3d98/s200/origami.jpg
+
+addmenu origami "ruby framework for pdf generation" "bash -c 'cd /tmp;cat /usr/share/Infond/bin/origami-pdf/README;echo samples available in /usr/share/Infond/bin/origami-pdf/samples;bash'" "true" pdf
+
 
 ##################################
 # dirBuster-1.0-RC1 2009-02-27
@@ -663,6 +729,7 @@ if [ -z "$(ls /usr/share/Infond/bin | grep pdfid)" ]; then
   unzip /tmp/pdfid_v0_0_11.zip -d /tmp
   rm /tmp/pdfid_v0_0_11.zip
   mv /tmp/pdfid.py /usr/share/Infond/bin/
+  ln -s /usr/share/Infond/bin/pdfid.py /usr/bin/pdfid
   log "+" "pdfid downloaded"
 else
   log "I" "pdfid already in /usr/share/Infond/bin. Not downloaded."
@@ -672,7 +739,7 @@ fi
 downloadicon pdfid http://3.bp.blogspot.com/_Jna6k5HsSu4/THY4kUhlzkI/AAAAAAAAAIE/ShLrs-iI2rs/s1600/pdf.png
 
 # add to menu
-addmenu pdfid "tool for pdf analysis" "bash -c 'cd /tmp;echo example: $ python pdfid.py mypdf.pdf;'" "true" pdf 
+addmenu pdfid "tool for pdf analysis" "bash -c 'cd /tmp;echo example: $ pdfid mypdf.pdf;bash'" "true" pdf 
 
 ##################################
 # pdf-parser.py
@@ -685,6 +752,11 @@ if [ -z "$(ls /usr/share/Infond/bin | grep pdf-parser)" ]; then
   unzip /tmp/pdf-parser_V0_3_7.zip -d /tmp
   rm /tmp/pdf-parser_V0_3_7.zip
   mv /tmp/pdf-parser.py /usr/share/Infond/bin/
+  echo "please open a terminal and edit /usr/share/Infond/bin/pdf-parser.py ."
+  echo "Then, correct the __maximum_python_version__  to current"
+  echo "please press ENTER when done"
+  read pause
+  ln -s /usr/share/Infond/bin/pdf-parser.py /usr/bin/pdf-parser
   log "+" "pdf-parser downloaded"
 else
   log "I" "pdf-parser already in /usr/share/Infond/bin. Not downloaded."
@@ -694,7 +766,7 @@ fi
 downloadicon pdf-parser http://3.bp.blogspot.com/_Jna6k5HsSu4/THY4kUhlzkI/AAAAAAAAAIE/ShLrs-iI2rs/s1600/pdf.png
 
 # add to menu
-addmenu pdf-parser "tool for pdf analysis" "bash -c 'cd /tmp;python pdf-parser.py;'" "true" pdf 
+addmenu pdf-parser "tool for pdf analysis" "bash -c 'cd /tmp;pdf-parser;bash;'" "true" pdf 
 
 
 ##################################
@@ -752,7 +824,7 @@ a2ensite ssl
 
 
 ##################################
-# rips-scanner 0.32
+# rips-scanner 0.34
 ##################################
 
 # needs apache and php
@@ -760,9 +832,9 @@ a2ensite ssl
 # install
 if [ -z "$(ls /var/www | grep rips)" ]; then
   rm -r /tmp/rips*
-  wget "http://sourceforge.net/projects/rips-scanner/files/rips-0.32.zip/download" -nc -P /tmp
+  wget "http://sourceforge.net/projects/rips-scanner/files/rips-0.34.zip/download" -nc -P /tmp
   mkdir /var/www/rips
-  unzip /tmp/rips-0.32.zip -d /var/www/rips
+  unzip /tmp/rips-0.34.zip -d /var/www/rips
   chown -R www-data: /var/www/rips 
   chmod 440 -R /var/www/rips
   chmod -R ug+X /var/www/rips
@@ -897,19 +969,19 @@ export PATH=/var/lib/gems/1.8/bin:$PATH
 
 
 ##################################
-# truecrypt-7.0-linux-x86
+# truecrypt-7.0a-linux-x86
 ##################################
 
 #install
 if [ -z "$(ls /usr/share/Infond/bin | grep truecrypt)"  ];then
-  wget http://www.truecrypt.org/download/truecrypt-7.0-linux-x86.tar.gz -nc -P /tmp
+  wget http://www.truecrypt.org/download/truecrypt-7.0a-linux-x86.tar.gz -nc -P /tmp
   log "+" "truecrypt-7.0 downloaded"
-  tar xzf /tmp/truecrypt-7.0-linux-x86.tar.gz -C /usr/share/Infond/bin/
-  rm /tmp/truecrypt-7.0-linux-x86.tar.gz
-  /usr/share/Infond/bin/truecrypt-7.0-setup-x86
-  log "+" "truecrypt-7.0 installed"
+  tar xzf /tmp/truecrypt-7.0a-linux-x86.tar.gz -C /usr/share/Infond/bin/
+  rm /tmp/truecrypt-7.0a-linux-x86.tar.gz
+  /usr/share/Infond/bin/truecrypt-7.0a-setup-x86
+  log "+" "truecrypt-7.0a installed"
 else
-  log "I" "truecrypt-7.0 already downloaded. Not updated."
+  log "I" "truecrypt-7.0a already downloaded. Not updated."
 fi
 
 # add category to gnome menu
@@ -1046,7 +1118,7 @@ addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program
 aptinstall httrack
 
 # download icon
-downloadicon httrack http://thumbs1-fr.logicielsfr.com/199-httrack/box/box.jpg
+downloadicon httrack http://i757.photobucket.com/albums/xx217/vieand/Screenshot/Logo/Winhttrack.jpg
 
 # add entry in Gnome menu
 addmenu httrack "httrack - offline browser : copy websites to a local directory." "bash -c 'cd /tmp;httrack -h;bash'" "true" "Accessories"
