@@ -23,7 +23,7 @@
 # - wireshark
 # - ruby
 # - ascii
-# - httrack
+# - webhttrack
 # - socat
 # - nasm
 # - w3af
@@ -62,6 +62,7 @@
 # - pdfid.py (0.0.11)
 # - pdf-parser.pym (0.3.7)
 # - mediawiki (1.16.0)
+# - sqlmap (0.8)
 
 # home made scripts
 # - hextoasm
@@ -413,8 +414,11 @@ addcategory pidgin Accessories
 
 # add pictures (if not already in directory)
 downloadicon Infond http://3.bp.blogspot.com/_Jna6k5HsSu4/TDH4lKIz1cI/AAAAAAAAAHc/a-P6uy2wHjI/s1600/Infond48x48.jpg
+
 downloadicon Pentest http://3.bp.blogspot.com/_Jna6k5HsSu4/TDMceNplaqI/AAAAAAAAAHs/iWG1MOPS0uw/s320/pentest.png
+
 downloadicon Forensics http://2.bp.blogspot.com/_Jna6k5HsSu4/THY3np27VLI/AAAAAAAAAH8/S2UXa4CsjB8/s1600/forensics.jpg
+
 downloadicon pdf http://3.bp.blogspot.com/_Jna6k5HsSu4/THY4kUhlzkI/AAAAAAAAAIE/ShLrs-iI2rs/s1600/pdf.png
 
 # add directory entries in /usr/share/Infond/desktop-directories
@@ -485,6 +489,23 @@ if [ -z "$(ls /usr/share/Infond/bin | grep google-chrome)" ]; then
 else
   log "I" "google-chrome already in /usr/share/Infond/bin. Not downloaded."
 fi
+
+
+##################################
+# sqlmap 0.8
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep sqlmap)" ]; then
+  wget http://downloads.sourceforge.net/project/sqlmap/sqlmap/0.8/sqlmap_0.8-1_all.deb -nc -P /usr/share/Infond/bin*
+  gdebi -n /usr/share/Infond/bin/sqlmap*
+  log "+" "sqlmap installed"
+else
+  log "I" "sqlmap already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon sqlmap http://sqlmap.sourceforge.net/sqlmap.png
+
+addmenu sqlmap "sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of back-end database servers." "bash -c 'cd /tmp;sqlmap -h;bash'" "true" "Pentest"
 
 
 ##################################
@@ -858,7 +879,7 @@ addmenu rips "RIPS is a static source code analyser for vulnerabilities in PHP w
 # mediawiki
 ##################################
 
-# install and securise mediawiki
+# install and secure mediawiki
 # needs apache, php, mysql
 
 if [ -z "$(ls /var/www | grep wiki)" ]; then
@@ -1111,17 +1132,17 @@ downloadicon aircrack http://www.hebertphp.net/wordpress/wp-content/uploads/2009
 addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program that can recover keys once enough data packets have been captured. It implements the standard FMS attack along with some optimizations like KoreK attacks, as well as the all-new PTW attack, thus making the attack much faster compared to other WEP cracking tools. In fact, Aircrack-ng is a set of tools for auditing wireless networks." "bash -c 'cd /tmp;aircrack-ng --help;bash'" "true" "Pentest"
 
 ###########################
-# httrack
+# webhttrack
 ###########################
 
 # apt install
-aptinstall httrack
+aptinstall webhttrack
 
 # download icon
-downloadicon httrack http://i757.photobucket.com/albums/xx217/vieand/Screenshot/Logo/Winhttrack.jpg
+downloadicon webhttrack http://i757.photobucket.com/albums/xx217/vieand/Screenshot/Logo/Winhttrack.jpg
 
 # add entry in Gnome menu
-addmenu httrack "httrack - offline browser : copy websites to a local directory." "bash -c 'cd /tmp;httrack -h;bash'" "true" "Accessories"
+addmenu webhttrack "webhttrack - offline browser : copy websites to a local directory." "bash -c 'cd /tmp;webhttrack -h;bash'" "true" "Accessories"
 
 
 ###########################
