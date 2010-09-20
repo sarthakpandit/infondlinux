@@ -63,6 +63,7 @@
 # - pdf-parser.pym (0.3.7)
 # - mediawiki (1.16.0)
 # - sqlmap (0.8)
+# - fierce (latest)
 
 # home made scripts
 # - hextoasm
@@ -712,6 +713,27 @@ addBinEntry burp "java -jar /usr/share/Infond/bin/burp/burp*.jar"
 
 # add entry in Gnome menu
 addmenu burp "Burp Suite is free to use for personal and commercial purposes." burp "false" "Pentest"
+
+##################################
+# fierce
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep fierce2)" ]; then
+  perl -MCPAN -e 'install Net::DNS'
+  perl -MCPAN -e 'install Net::hostent'
+  svn co https://svn.assembla.com/svn/fierce/fierce2/trunk/ /usr/share/Infond/bin/fierce2/
+  chmod +x /usr/share/Infond/bin/fierce/install.sh
+  /usr/share/Infond/bin/fierce2/install.sh
+  log "+" "fierce2 installed"
+else
+  log "I" "fierce2 already in /usr/share/Infond/bin. Not downloaded."
+fi
+downloadicon fierce2 http://ha.ckers.org/fierce/fiercesmall.jpg
+
+addBinEntry fierce2 "bash -c 'cd /tmp;fierce;echo ex: $ fierce -dns monsite.com;bash'"
+
+addmenu fierce2 "Fierce is a reconnaissance tool written in Perl that quickly scans domains (usually in just a few minutes, assuming no network lag) using a variety of techniques to locate undocumented, internal or just hard-to-find resources via the DNS system." fierce2 "true" "pentest"
+
 
 ##################################
 # webscarab
