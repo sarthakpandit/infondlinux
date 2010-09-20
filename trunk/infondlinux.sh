@@ -732,7 +732,7 @@ downloadicon fierce2 http://ha.ckers.org/fierce/fiercesmall.jpg
 
 addBinEntry fierce2 "bash -c 'cd /tmp;fierce;echo ex: $ fierce -dns monsite.com;bash'"
 
-addmenu fierce2 "Fierce is a reconnaissance tool written in Perl that quickly scans domains (usually in just a few minutes, assuming no network lag) using a variety of techniques to locate undocumented, internal or just hard-to-find resources via the DNS system." fierce2 "true" "pentest"
+addmenu fierce2 "Fierce is a reconnaissance tool written in Perl that quickly scans domains (usually in just a few minutes, assuming no network lag) using a variety of techniques to locate undocumented, internal or just hard-to-find resources via the DNS system." fierce2 "true" "Pentest"
 
 
 ##################################
