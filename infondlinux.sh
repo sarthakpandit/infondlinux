@@ -9,13 +9,15 @@
 # debian packages
 # - vim 
 # - less 
-# - gimp 
+# - gimp
+# - build-essential 
 # - wipe 
 # - xchat 
 # - pidgin 
 # - vlc 
 # - nautilus-open-terminal
 # - nmap
+# - zenmap
 # - sun-java6-plugin et jre et jdk
 # - bluefish
 # - flash-plugin-nonfree
@@ -42,6 +44,8 @@
 # - mysql-server 
 # - php5-mysql
 # - phpmyadmin
+# - extract
+# - p0f
 
 # third party packages
 # - tor
@@ -64,6 +68,7 @@
 # - mediawiki (1.16.0)
 # - sqlmap (0.8)
 # - fierce (latest)
+# - wifite (latest)
 
 # home made scripts
 # - hextoasm
@@ -256,7 +261,7 @@ Categories=$5
 # @param1: name
 # @param2: category
 addcategory() (
-[ -z $(cat /usr/share/applications/$1.desktop | grep $2) ] && sed -i "/Categories/s|$|$2;|" /usr/share/applications/$1.desktop
+[ -z $(cat /usr/share/applications/$1.desktop | grep $2) ] && sed -i "/Categories/s|$|;$2;|" /usr/share/applications/$1.desktop
 )
 
 ###########################
@@ -383,6 +388,7 @@ aptremove totem
 # apt install
 aptinstall vim
 aptinstall less
+aptinstall build-essential
 aptinstall gimp
 aptinstall tor
 aptinstall tor-geoipdb
@@ -521,6 +527,25 @@ downloadicon nmap http://www.ansi.tn/gfx/nmap.png
 
 # add entry in Gnome menu
 addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" "Pentest"
+
+
+##################################
+# zenmap
+##################################
+
+aptinstall zenmap
+addcategory zenmap Pentest
+addcategory zenmap-root Pentest
+
+
+##################################
+# extract
+##################################
+
+aptinstall extract
+downloadicon extract http://seo-hacker.com/wp-content/uploads/2010/05/Meta-tags.jpg
+addmenu extract "determine meta-information about a file/" "bash -c 'cd /tmp;extract -h;echo ex: $ extract test/test.jpg;bash'" "true" "Forensics"
+
 
 ##################################
 # w3af
@@ -733,6 +758,28 @@ downloadicon fierce2 http://ha.ckers.org/fierce/fiercesmall.jpg
 addBinEntry fierce2 "bash -c 'cd /tmp;fierce;echo ex: $ fierce -dns monsite.com;bash'"
 
 addmenu fierce2 "Fierce is a reconnaissance tool written in Perl that quickly scans domains (usually in just a few minutes, assuming no network lag) using a variety of techniques to locate undocumented, internal or just hard-to-find resources via the DNS system." fierce2 "true" "Pentest"
+
+
+##################################
+# wifite
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep wifite)" ]; then
+  aptinstall python-tk
+  wget http://wifite.googlecode.com/svn/trunk/wifite.py -nc -P /usr/share/Infond/bin
+  chmod +x /usr/share/Infond/bin/wifite.py
+  log "+" "wifite downloaded"
+else
+  log "I" "wifite already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon wifite http://tuxsys.ch/wp-content/uploads/wifi.jpg
+
+addBinEntry wifite "sudo python /usr/share/Infond/bin/wifite.py"
+
+addmenu wifite "to attack multiple WEP and WPA encrypted networks at the same time. this tool is customizable to be automated with only a few arguments. can be trusted to run without supervision." wifite "true" "Pentest"
+
+
 
 
 ##################################
@@ -1112,6 +1159,21 @@ downloadicon wipe http://i26.tinypic.com/141o2nt.jpg
 
 # add entry in Gnome menu
 addmenu wipe "securely erase files from magnetic media." "bash -c 'cd /tmp;wipe -h;bash'" "true" "Accessories"
+
+###########################
+# p0f
+###########################
+
+# apt install
+aptinstall p0f
+
+# download icon
+downloadicon p0f http://www.abcteach.com/free/b/banner3longbnw.jpg
+
+# add entry in Gnome menu
+addmenu p0f "identify remote systems passively." "bash -c 'cd /tmp;p0f -h;bash'" "true" "Pentest"
+
+
 
 ###########################
 # socat
