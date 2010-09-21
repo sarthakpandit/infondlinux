@@ -46,6 +46,23 @@
 # - phpmyadmin
 # - extract
 # - p0f
+# - spikeproxy
+# - ettercap
+# - dsniff :
+#	* arpspoof - Send out unrequested (and possibly forged) arp replies.
+#	* dnsspoof - forge replies to arbitrary DNS address / pointer queries on the Local Area Network.
+#	* dsniff - password sniffer for several protocols.
+#	* filesnarf - saves selected files sniffed from NFS traffic.
+#	* macof - flood the local network with random MAC addresses.
+#	* mailsnarf - sniffs mail on the LAN and stores it in mbox format.
+#	* msgsnarf - record selected messages from different Instant Messengers.
+#	* sshmitm - SSH monkey-in-the-middle. proxies and sniffs SSH traffic.
+#	* sshow - SSH traffic analyser.
+#	* tcpkill - kills specified in-progress TCP connections.
+#	* tcpnice - slow down specified TCP connections via “active” traffic shaping.
+#	* urlsnarf - output selected URLs sniffed from HTTP traffic in CLF.
+#	* webmitm - HTTP / HTTPS monkey-in-the-middle. transparently proxies.
+#	* webspy - sends URLs sniffed from a client to your local browser
 
 # third party packages
 # - tor
@@ -421,18 +438,17 @@ addcategory pidgin Accessories
 
 # add pictures (if not already in directory)
 downloadicon Infond http://3.bp.blogspot.com/_Jna6k5HsSu4/TDH4lKIz1cI/AAAAAAAAAHc/a-P6uy2wHjI/s1600/Infond48x48.jpg
-
 downloadicon Pentest http://3.bp.blogspot.com/_Jna6k5HsSu4/TDMceNplaqI/AAAAAAAAAHs/iWG1MOPS0uw/s320/pentest.png
-
 downloadicon Forensics http://2.bp.blogspot.com/_Jna6k5HsSu4/THY3np27VLI/AAAAAAAAAH8/S2UXa4CsjB8/s1600/forensics.jpg
-
 downloadicon pdf http://3.bp.blogspot.com/_Jna6k5HsSu4/THY4kUhlzkI/AAAAAAAAAIE/ShLrs-iI2rs/s1600/pdf.png
+downloadicon Transport http://www.bluemelon.org/images/1/1c/Wire-black.gif
 
 # add directory entries in /usr/share/Infond/desktop-directories
 adddirectory Infond
 adddirectory Pentest
 adddirectory Forensics
 adddirectory pdf
+adddirectory Transport
 
 # modify /etc/xdg/menus/applications.menu
 # the directory /etc/xdg is in $XDG_CONFIG_DIRS (see $ gnome-help)
@@ -451,6 +467,15 @@ if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; t
           <Category>Pentest</Category>\
         </And>\
       </Include>\
+      <Menu>\
+        <Name>Transport</Name>\
+        <Directory>Transport.directory</Directory>\
+        <Include>\
+          <And>\
+            <Category>Transport</Category>\
+          </And>\
+        </Include>\
+      </Menu>\
     </Menu>\
     <Menu>\
       <Name>Forensics</Name>\
@@ -514,6 +539,24 @@ downloadicon sqlmap http://sqlmap.sourceforge.net/sqlmap.png
 
 addmenu sqlmap "sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of back-end database servers." "bash -c 'cd /tmp;sqlmap -h;bash'" "true" "Pentest"
 
+##################################
+# spikeproxy
+##################################
+
+aptinstall spikeproxy
+
+downloadicon spikeproxy http://icon.downv.com/32x32/5/71/1035076.f8375b2ff667dd9e260527fa6a173b94.gif
+
+addmenu spikeproxy "web application auditing tool." "bash -c 'gnome-terminal -e "sudo spikeproxy";google-chrome --proxy-server=localhost:8080 http://spike'" "false" "Pentest"
+
+##################################
+# ettercap
+##################################
+
+aptinstall ettercap-gtk
+addcategory ettercap Transport
+
+
 
 ##################################
 # nmap
@@ -526,7 +569,7 @@ aptinstall nmap
 downloadicon nmap http://www.ansi.tn/gfx/nmap.png
 
 # add entry in Gnome menu
-addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" "Pentest"
+addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;nmap -h;nmap -V;bash'" "true" Transport
 
 
 ##################################
@@ -534,8 +577,61 @@ addmenu nmap "Nmap (\"Network Mapper\") is a free and open source utility for ne
 ##################################
 
 aptinstall zenmap
-addcategory zenmap Pentest
-addcategory zenmap-root Pentest
+downloadicon zenmap http://www.ansi.tn/gfx/nmap.png
+rm /usr/share/applications/zenmap-root.desktop
+rm /usr/share/applications/zenmap.desktop
+addmenu zenmap "Nmap (\"Network Mapper\") is a free and open source utility for network exploration or security auditing." "bash -c 'cd /tmp;gnome-terminal -e \"sudo zenmap\"'" "false" Transport
+
+##################################
+# dsniff
+##################################
+
+#	* arpspoof - Send out unrequested (and possibly forged) arp replies.
+#	* dnsspoof - forge replies to arbitrary DNS address / pointer queries on the Local Area Network.
+#	* dsniff - password sniffer for several protocols.
+#	* filesnarf - saves selected files sniffed from NFS traffic.
+#	* macof - flood the local network with random MAC addresses.
+#	* mailsnarf - sniffs mail on the LAN and stores it in mbox format.
+#	* msgsnarf - record selected messages from different Instant Messengers.
+#	* sshmitm - SSH monkey-in-the-middle. proxies and sniffs SSH traffic.
+#	* sshow - SSH traffic analyser.
+#	* tcpkill - kills specified in-progress TCP connections.
+#	* tcpnice - slow down specified TCP connections via “active” traffic shaping.
+#	* urlsnarf - output selected URLs sniffed from HTTP traffic in CLF.
+#	* webmitm - HTTP / HTTPS monkey-in-the-middle. transparently proxies.
+#	* webspy - sends URLs sniffed from a client to your local browser
+
+aptinstall dsniff
+
+downloadicon arpspoof http://school.discoveryeducation.com/clipart/images/harp.gif
+addmenu arpspoof "intercept packets on a switched LAN." "bash -c 'cd /tmp;arpspoof;bash'" "true" Transport
+downloadicon dnsspoof http://bio3d.colorado.edu/tor/sadocs/dns/dns-1.png
+addmenu dnsspoof "forge replies to DNS address / pointer queries." "bash -c 'cd /tmp;dnsspoof -h;bash'" "true" Transport
+downloadicon dsniff http://blog.pastoutafait.org/dotfiles/public/images/securite/dsniff-logo.png
+addmenu dsniff "password sniffer." "bash -c 'cd /tmp;dsniff -h;bash'" "true" Transport
+downloadicon filesnarf http://i1-news.softpedia-static.com/images/extra/LINUX/large/protechone-large_014.png
+addmenu filesnarf "sniff files from NFS traffic." "bash -c 'cd /tmp;filesnarf -h;bash'" "true" Transport
+downloadicon macof http://www.cisco.com/en/US/i/100001-200000/140001-150000/148001-149000/148494.jpg
+addmenu macof "flood a switched LAN with random MAC addresses." "bash -c 'cd /tmp;macof -h;bash'" "true" Transport
+downloadicon mailsnarf http://www.monnaieservices.org/Images/mail.jpg
+addmenu mailsnarf "sniff mail messages in Berkeley mbox format." "bash -c 'cd /tmp;mailsnarf -h;bash'" "true" Transport
+downloadicon msgsnarf http://www.smiley-gratos.com/smileys/1377-chat-triste-51.gif
+addmenu msgsnarf "sniff chat messages." "bash -c 'cd /tmp;msgsnarf -h;bash'" "true" Transport
+downloadicon sshmitm http://a.images.blip.tv/G0tmi1k-ManInTheMiddleMITMAttack698.gif
+addmenu sshmitm "SSH monkey-in-the-middle." "bash -c 'cd /tmp;sshmitm -h;bash'" "true" Transport
+downloadicon sshow http://android.smartphonefrance.info/news/unlock.jpg
+addmenu sshmitm "SSH traffic analysis tool." "bash -c 'cd /tmp;sshow -h;bash'" "true" Transport
+downloadicon tcpkill http://www.appetitebooks.ca/images/cms/Image/Knife.jpg
+addmenu tcpkill "kill TCP connections on a LAN." "bash -c 'cd /tmp;tcpkill -h;bash'" "true" Transport
+downloadicon tcpnice http://www.hybridworks.jp/apps/nibclock/img/_icons/snail.gif
+addmenu tcpnice "slow down TCP connections on a LAN." "bash -c 'cd /tmp;tcpnice -h;bash'" "true" Transport
+downloadicon urlsnarf http://static.pcinpact.com/images/bd/news/mini-69414-http-world-wide-web-www.jpg
+addmenu urlsnarf "sniff HTTP requests in Common Log Format." "bash -c 'cd /tmp;urlsnarf -h;bash'" "true" Transport
+downloadicon webmitm http://www.linux-france.org/prj/inetdoc/securite/tutoriel/images/middle.png
+addmenu webmitm "HTTP / HTTPS monkey-in-the-middle." "bash -c 'cd /tmp;webmitm -h;bash'" "true" Transport
+downloadicon webspy http://www.chezcarriere.com/images/logo_Netscape.gif
+addmenu webspy "display sniffed URLs in Netscape in real-time." "bash -c 'cd /tmp;webspy -h;bash'" "true" Transport
+
 
 
 ##################################
@@ -777,7 +873,7 @@ downloadicon wifite http://tuxsys.ch/wp-content/uploads/wifi.jpg
 
 addBinEntry wifite "sudo python /usr/share/Infond/bin/wifite.py"
 
-addmenu wifite "to attack multiple WEP and WPA encrypted networks at the same time. this tool is customizable to be automated with only a few arguments. can be trusted to run without supervision." wifite "true" "Pentest"
+addmenu wifite "to attack multiple WEP and WPA encrypted networks at the same time. this tool is customizable to be automated with only a few arguments. can be trusted to run without supervision." wifite "true" "Transport"
 
 
 
@@ -1161,7 +1257,7 @@ downloadicon wipe http://i26.tinypic.com/141o2nt.jpg
 addmenu wipe "securely erase files from magnetic media." "bash -c 'cd /tmp;wipe -h;bash'" "true" "Accessories"
 
 ###########################
-# p0f
+# p0f (passive footprinting tool)
 ###########################
 
 # apt install
@@ -1213,7 +1309,7 @@ aptinstall aircrack-ng
 downloadicon aircrack http://www.hebertphp.net/wordpress/wp-content/uploads/2009/07/wifi.jpg 
 
 # add entry in Gnome menu
-addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program that can recover keys once enough data packets have been captured. It implements the standard FMS attack along with some optimizations like KoreK attacks, as well as the all-new PTW attack, thus making the attack much faster compared to other WEP cracking tools. In fact, Aircrack-ng is a set of tools for auditing wireless networks." "bash -c 'cd /tmp;aircrack-ng --help;bash'" "true" "Pentest"
+addmenu aircrack "Aircrack-ng is an 802.11 WEP and WPA-PSK keys cracking program that can recover keys once enough data packets have been captured. It implements the standard FMS attack along with some optimizations like KoreK attacks, as well as the all-new PTW attack, thus making the attack much faster compared to other WEP cracking tools. In fact, Aircrack-ng is a set of tools for auditing wireless networks." "bash -c 'cd /tmp;aircrack-ng --help;bash'" "true" Transport
 
 ###########################
 # webhttrack
