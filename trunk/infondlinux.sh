@@ -63,6 +63,7 @@
 #	* urlsnarf - output selected URLs sniffed from HTTP traffic in CLF.
 #	* webmitm - HTTP / HTTPS monkey-in-the-middle. transparently proxies.
 #	* webspy - sends URLs sniffed from a client to your local browser
+# - unrar
 
 # third party packages
 # - tor
@@ -86,6 +87,9 @@
 # - sqlmap (0.8)
 # - fierce (latest)
 # - wifite (latest)
+# - pyloris (3.2)
+# - skipfish (1.67)
+# - hydra (5.7)
 
 # home made scripts
 # - hextoasm
@@ -101,6 +105,7 @@
 # - flashgot 
 # - foxyproxy
 # - certificatepatrol
+# - chickenfoot 1.0.7
 
 ######################################################
 # trick to know: to share the current directory:
@@ -424,6 +429,7 @@ aptinstall traceroute
 aptinstall filezilla
 aptinstall gnupg
 aptinstall gpa
+aptinstall unrar
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -442,6 +448,7 @@ downloadicon Pentest http://3.bp.blogspot.com/_Jna6k5HsSu4/TDMceNplaqI/AAAAAAAAA
 downloadicon Forensics http://2.bp.blogspot.com/_Jna6k5HsSu4/THY3np27VLI/AAAAAAAAAH8/S2UXa4CsjB8/s1600/forensics.jpg
 downloadicon pdf http://3.bp.blogspot.com/_Jna6k5HsSu4/THY4kUhlzkI/AAAAAAAAAIE/ShLrs-iI2rs/s1600/pdf.png
 downloadicon Transport http://www.bluemelon.org/images/1/1c/Wire-black.gif
+downloadicon Ddos http://www.peacelab.org/pictures/nuclear_bomb.jpg
 
 # add directory entries in /usr/share/Infond/desktop-directories
 adddirectory Infond
@@ -449,6 +456,7 @@ adddirectory Pentest
 adddirectory Forensics
 adddirectory pdf
 adddirectory Transport
+adddirectory Ddos
 
 # modify /etc/xdg/menus/applications.menu
 # the directory /etc/xdg is in $XDG_CONFIG_DIRS (see $ gnome-help)
@@ -459,6 +467,15 @@ if [ -z "$( cat /etc/xdg/menus/applications.menu | grep Infond.directory )" ]; t
   <Menu>\
     <Name>Infond</Name>\
     <Directory>Infond.directory</Directory>\
+    <Menu>\
+      <Name>Ddos</Name>\
+      <Directory>Ddos.directory</Directory>\
+      <Include>\
+        <And>\
+          <Category>Ddos</Category>\
+        </And>\
+      </Include>\
+    </Menu>\
     <Menu>\
       <Name>Pentest</Name>\
       <Directory>Pentest.directory</Directory>\
@@ -631,6 +648,69 @@ downloadicon webmitm http://www.linux-france.org/prj/inetdoc/securite/tutoriel/i
 addmenu webmitm "HTTP / HTTPS monkey-in-the-middle." "bash -c 'cd /tmp;webmitm -h;bash'" "true" Transport
 downloadicon webspy http://www.chezcarriere.com/images/logo_Netscape.gif
 addmenu webspy "display sniffed URLs in Netscape in real-time." "bash -c 'cd /tmp;webspy -h;bash'" "true" Transport
+
+
+##################################
+# skipfish 1.67
+##################################
+
+aptinstall libidn11-dev
+if [ -z "$(ls /usr/share/Infond/bin | grep skipfish)" ]; then
+  wget http://skipfish.googlecode.com/files/skipfish-1.67b.tgz -nc -P /tmp
+  tar xzf /tmp/skipfish* -C /usr/share/Infond/bin
+  bash -c 'cd /usr/share/Infond/bin/skipfish-1.67b; make' 
+  rm /tmp/skipfish*
+  log "+" "skipfish compiled and installed"
+else
+  log "I" "skipfish already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon skipfish http://img.maxisciences.com/google/logo-google_12964_w250.jpg
+
+addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"rm -r /tmp/skipfish;mkdir /tmp/skipfish;cp -r /usr/share/Infond/bin/skipfish-1.67b/* /tmp/skipfish;cd /tmp/skipfish; cp /tmp/skipfish/dictionaries/default.wl /tmp/skipfish/skipfish.wl; ./skipfish -h;echo ex: $ ./skipfish -o /tmp/results http://www.example.com;bash\"" "true" "Pentest"
+
+
+##################################
+# hydra 5.7
+##################################
+
+aptinstall libssh-dev
+aptinstall libpq-dev
+aptinstall libncp-dev
+
+if [ -z "$(ls /usr/local/bin | grep hydra)" ]; then
+  wget http://freeworld.thc.org/releases/hydra-5.7-src.tar.gz -nc -P /tmp
+  tar xzf /tmp/hydra* -C /tmp
+  bash -c 'cd /tmp/hydra-5.7-src; ./configure; make; make install' 
+  rm /tmp/hydra*
+  log "+" "hydra compiled and installed"
+else
+  log "I" "hydra already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon hydra http://www.taraduncan-livre.com/wp-content/uploads/2009/04/tara-duncan-familier-hydre-familier-robin.jpg
+
+addmenu hydra "A very fast network logon cracker which support many different services." "bash -c \"cd /tmp; hydra ;bash\"" "true" "Pentest"
+
+
+##################################
+# pyLoris 3.2
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep pyLoris)" ]; then
+  wget http://downloads.sourceforge.net/project/pyloris/pyloris/3.2/pyloris-3.2.tgz -nc -P /tmp
+  tar xzf /tmp/pyloris-3.2.tgz -C /usr/share/Infond/bin
+  rm /tmp/pyloris*
+  log "+" "pyloris downloaded"
+else
+  log "I" "pyloris already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon pyloris http://aphs.worldnomads.com/jamesanddan/3493/SlowLoris.jpg
+
+addBinEntry pyloris "python /usr/share/Infond/bin/pyloris-3.2/pyloris.py"
+
+addmenu pyloris "PyLoris is a scriptable tool for testing a web server's vulnerability to Denial of Service (DoS) attacks which supports SOCKS, SSL, and all HTTP request methods." pyloris "true" "Transport"
 
 
 
@@ -808,6 +888,20 @@ addBinEntry dirbuster "java -jar /usr/share/Infond/bin/DirBuster-1.0-RC1/DirBust
 
 # add entry in Gnome menu for DirBuster
 addmenu dirbuster "DirBuster is a multi threaded java application designed to brute force directories and files names on web/application servers. Often is the case now of what looks like a web server #in a state of default installation is actually not, and has pages and applications hidden within. DirBuster attempts to find these." dirbuster "false" "Pentest"
+
+
+##################################
+# bboxkeys
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep bboxkeys)" ]; then
+  wget "https://docs.google.com/uc?id=0B-dlin-yvm82MGViYjQ5NzktMmZiYi00YTFjLThjNDQtN2M1NDM0NDI1NmJj&export=download&hl=fr" -nc -O /usr/share/Infond/bin/bboxkeys
+  chmod +x /usr/share/Infond/bin/bboxkeys
+fi
+
+downloadicon bboxkeys http://www.renaudbaivier.com/public/News/logo-bouygues-telecom.png
+addBinEntry bboxkeys /usr/share/Infond/bin/bboxkeys
+addmenu bbkeys "Bouygues Telecom Bbox default WPA key Generator" "bash -c 'cd /tmp;bboxkeys;bash;'" "true" "Accessories"
 
 ##################################
 # burp suite 1.3.03
@@ -1356,6 +1450,16 @@ if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep tamperdata)" ]; 
   log "+" "tamper_data firefox extension installed."
 else
  log "I" "tamper_data already installed. .xpi not downloaded."
+fi
+
+# chickenfoot 1.0.7
+if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep chickenfoot)" ]; then 
+  wget http://groups.csail.mit.edu/uid/chickenfoot/chickenfoot.xpi -nc -P ~/.mozilla/firefox/*.default/extensions
+  chown $id:$id ~/.mozilla -R
+  firefox -silent -offline
+  log "+" "chickenfoot firefox extension installed."
+else
+ log "I" "chickenfoot already installed. .xpi not downloaded."
 fi
 
 ###########################
