@@ -64,6 +64,7 @@
 #	* webmitm - HTTP / HTTPS monkey-in-the-middle. transparently proxies.
 #	* webspy - sends URLs sniffed from a client to your local browser
 # - unrar
+# - torsocks
 
 # third party packages
 # - tor
@@ -171,7 +172,7 @@ addBinEntry() (
   fi
 
   # create symbolic link in /usr/bin
-  if [ -z $(ls /usr/bin | grep $1.sh ) ]; then
+  if [ -z $(ls /usr/bin | grep $1 ) ]; then
     ln -s /usr/share/Infond/bin/$1.sh /usr/bin/$1
     log "+" "symbolic link to $1.sh created in /usr/bin/."
   else
@@ -283,7 +284,15 @@ Categories=$5
 # @param1: name
 # @param2: category
 addcategory() (
-[ -z $(cat /usr/share/applications/$1.desktop | grep $2) ] && sed -i "/Categories/s|$|;$2;|" /usr/share/applications/$1.desktop
+  if [ -z "$(cat /usr/share/applications/$1.desktop | grep Categories | grep $2)"]; then
+    # replace all Categories entries by $2. Ex: Categories=Network;GTK => Categories=Transport;
+    sed -i "s/Categories.*/Categories=$2;/" /usr/share/applications/$1.desktop
+    # add $2 to Categories entries. Ex: Categories=Network;GTK => Categories=Network;GTK;Transport;
+    #[ -z $(cat /usr/share/applications/$1.desktop | grep $2) ] && sed -i "/Categories/s|$|;$2;|" /usr/share/applications/$1.desktop
+    log "+" "$2 put in Categories in $1.desktop"
+  else
+    log "I" "$2 already in Categories in $1.desktop"
+  fi
 )
 
 ###########################
@@ -567,6 +576,16 @@ downloadicon spikeproxy http://icon.downv.com/32x32/5/71/1035076.f8375b2ff667dd9
 addmenu spikeproxy "web application auditing tool." "bash -c 'gnome-terminal -e "sudo spikeproxy";google-chrome --proxy-server=localhost:8080 http://spike'" "false" "Pentest"
 
 ##################################
+# torsocks
+##################################
+
+aptinstall torsocks
+
+downloadicon usewithtor http://check.torproject.org/images/tor-on.png
+
+addmenu usewithtor "Torsocks allows you to use most socks-friendly applications in a safe way with Tor." "bash -c 'cd /tmp;echo usewithtor [application [application arguments]];usewithtor -h;bash'" "true" Transport
+
+##################################
 # ettercap
 ##################################
 
@@ -697,7 +716,7 @@ addmenu hydra "A very fast network logon cracker which support many different se
 # pyLoris 3.2
 ##################################
 
-if [ -z "$(ls /usr/share/Infond/bin | grep pyLoris)" ]; then
+if [ -z "$(ls /usr/share/Infond/bin | grep pyloris)" ]; then
   wget http://downloads.sourceforge.net/project/pyloris/pyloris/3.2/pyloris-3.2.tgz -nc -P /tmp
   tar xzf /tmp/pyloris-3.2.tgz -C /usr/share/Infond/bin
   rm /tmp/pyloris*
