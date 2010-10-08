@@ -65,6 +65,7 @@
 #	* webspy - sends URLs sniffed from a client to your local browser
 # - unrar
 # - torsocks
+# - secure-delete
 
 # third party packages
 # - tor
@@ -72,7 +73,7 @@
 # - virtualbox
 
 # manually downloaded softwares and version
-# - dirBuster (1.0-RC1)
+# - DirBuster (0.12)
 # - truecrypt (7.0a)
 # - metasploit framework (3.4.1)
 # - webscarab (latest)
@@ -96,6 +97,7 @@
 # - hextoasm
 # - md5crack.py (written by Corbiero)
 # - chartoascii.py
+# - rsa.py
 
 # firefox extensions
 # - livehttpheaders 
@@ -116,11 +118,12 @@
 
 
 #####################################
-# define username
+# define extension directory for mozilla firefox
 #####################################
 
-# define username (script started sudo!)
-id=$(ls /home)
+mozillaApplicationId="$(ls /usr/share/mozilla/extensions)"
+extensionDir="/usr/share/mozilla/extensions/$mozillaApplicationId"
+
 
 #####################################
 # function log()
@@ -215,16 +218,11 @@ aptinstall() (
 # @param1: name of the extension
 # @param2: number of extension on addons.mozilla.org 
 firefoxadd() (
-  if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep $1)" ]; then 
+  if [ -z "$(ls -R $extensionDir | grep $1)" ]; then 
     # download
-    wget https://addons.mozilla.org/en-US/firefox/downloads/latest/$2/addon-$2-latest.xpi -nc -P ~/.mozilla/firefox/*.default/extensions/
-    # give access to current user
-    chown $id:$id ~/.mozilla -R
-    log "+" "chown $id:$id ~/mozilla -R fait"
-    # install addon
-    firefox -silent -offline
-    # log
-    log "+" "$1 firefox extension installed."
+    wget https://addons.mozilla.org/en-US/firefox/downloads/latest/$2/addon-$2-latest.xpi -nc -P $extensionDir
+   # log
+   log "+" "$1 firefox extension installed."
   else
    log "I" "$1 firefox extension already installed. .xpi not downloaded."
   fi
@@ -439,6 +437,7 @@ aptinstall filezilla
 aptinstall gnupg
 aptinstall gpa
 aptinstall unrar
+aptinstall secure-delete
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -862,8 +861,65 @@ ln -s /usr/share/Infond/bin/hextoasm /usr/bin/hextoasm
 # download icon
 downloadicon hextoasm http://info.sio2.be/python/1/images/assembler.png
  
-# add entry in Gnome menu for DirBuster
+# add entry in Gnome menu for hextoasm
 addmenu hextoasm "prints asm instructions from an hex strings ." "bash -c 'cd /tmp;hextoasm -h;bash'" "true" "Accessories"
+
+##################################
+# rsa.py
+##################################
+rsa_readme = 'source: http://www.amk.ca/python/writing/crypto-curiosa
+
+rsa.py (4 lines): Performs RSA public key encryption/decryption. It requires two arguments, and can accept a single option:  -d  for decryption (the default action is encryption). The first argument must be the required exponent, expressed in hexadecimal, and the second is the modulus, also in hex. You still have to choose the correct exponent, whether the  -d  option is present or not;  -d  simply changes the number of bytes read at a single time.
+
+As an example: Let us assume the modulus is 6819722537 (in hex, 0x1967cb529), the encryption exponent is 65537 (hex 0x10001), and the decryption exponent is 2889233921 (hex 0xac363601). Then, after converting the numbers to hex, we can encrypt and then decrypt by the following commands:
+
+        echo  Top secret message.  | rsa.py 10001 1967cb529 >ciphertext
+        cat ciphertext             | rsa.py -d ac363601 1967cb529 
+
+Here s the program. It s a line longer than the Perl version, but doesn t require that the dc desk calculator program be installed. (Perl doesn t have built-in large integers as Python does, so it has to fork a dc subprocess to do the computations.)
+
+#!/usr/local/bin/python 
+from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
+ - ,a);d= -d in a;e,n=atol(p,16),atol(q,16);l=(len(q)+1)/2;o,inb=l-d,l-1+d
+while s:s=stdin.read(inb);s and map(stdout.write,map(lambda i,b=pow(reduce(
+lambda x,y:(x<<8L)+y,map(ord,s)),e,n):chr(b>>8*i&255),range(o-1,-1,-1)))
+
+Let s look at some of the tricks used to save space. A simple one: instead of using import string and then accessing functions such as string.atol, all the symbols in the string module are added to the current namespace by using from string import *.
+
+A common Python idiom to read lines from a file looks like this:
+
+while(1):
+    line = sys.stdin.readline()
+    if line == "": break     # readline() returns an empty string at EOF
+    ... do something with the line ...
+
+This is very bad for our line count. Python only allows at most two blocks per line, so you can t write code like for i in [1,2,3]: if i==2: print  Found 2! ; that will cause a syntax error. However, this would mean our I/O loop would take at least 3 lines, which is unacceptable. A solution is to exploit the fact that Python offers short-circuit evaluation. When asked to evaluate an expression like A and B, if A is false, there s no point in evaluating B, since the whole expression will be false no matter what B s value is. This is part of the Python language specification and not subject to change, because it s a useful behaviour. You can write an expression like booleanValue and timeConsumingFunction(), and know that timeConsumingFunction() will only be called if it can t be avoided, which is when booleanValue is true.
+
+Strings evaluate to true if they re not empty, and the empty string is considered to be false, so the above loop can then be rewritten as:
+
+while(line):
+    line = sys.stdin.readline()
+    line and someFunction(line)
+
+someFunction(line) is then only called if line is not the empty string, and the while loop ends when line becomes empty. This trick isn t recommended for use in Python programs that you want to be maintainable, but short-circuit evaluation is a useful feature that you should be aware of; conditions should be written with simple variables first, and function evaluations later, for faster execution by avoiding unnecessary function calls.'
+
+echo "#!/usr/local/bin/python 
+from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
+'-',a);d='-d'in a;e,n=atol(p,16),atol(q,16);l=(len(q)+1)/2;o,inb=l-d,l-1+d
+while s:s=stdin.read(inb);s and map(stdout.write,map(lambda i,b=pow(reduce(
+lambda x,y:(x<<8L)+y,map(ord,s)),e,n):chr(b>>8*i&255),range(o-1,-1,-1)))
+" > /usr/share/Infond/bin/rsa.py
+
+# add bin entry
+addBinEntry rsa.py "python /usr/share/Infond/bin/rsa.py \$1 \$2 \$3"
+
+# download icon
+downloadicon rsa http://fr.academic.ru/pictures/frwiki/82/RSA_Security_logo_CMYK.jpg
+ 
+# add entry in Gnome menu
+addmenu rsa.py $rsa_readme "bash -c 'cd /tmp;echo $rsa_readme;echo exemple:; echo echo  Top secret message | rsa.py 10001 1967cb529 > ciphertext; echo cat ciphertext | rsa.py -d ac363601 1967cb529;bash;'" "true" "Accessories"
+
+
 
 ##################################
 # origami-pdf
@@ -886,14 +942,14 @@ addmenu origami "ruby framework for pdf generation" "bash -c 'cd /tmp;cat /usr/s
 
 
 ##################################
-# dirBuster-1.0-RC1 2009-02-27
+# dirBuster-0.12
 ##################################
 
 # install
 if [ -z "$(ls /usr/share/Infond/bin | grep DirBuster)" ]; then
-  wget "http://sourceforge.net/projects/dirbuster/files/DirBuster%20%28jar%20%2B%20lists%29/1.0-RC1/DirBuster-1.0-RC1.tar.bz2/download" -nc -P /tmp
+  wget "http://downloads.sourceforge.net/dirbuster/DirBuster-0.12.tar.bz2" -nc -P /tmp
   tar xjvf /tmp/DirBuster* -C /usr/share/Infond/bin
-  rm /tmp/DirBuster-1.0-RC1.tar.bz2
+  rm -r /tmp/DirBuster*
   log "+" "dirbuster downloaded"
 else
   log "I" "dirbuster already in /usr/share/Infond/bin. Not downloaded."
@@ -903,7 +959,7 @@ fi
 downloadicon dirbuster http://a.fsdn.com/con/icons/di/dirbuster@sf.net/ologo.gif 
 
 # create dirbuster.sh and add dirbuster.sh shortcut in /usr/bin
-addBinEntry dirbuster "java -jar /usr/share/Infond/bin/DirBuster-1.0-RC1/DirBuster-1.0-RC1.jar"
+addBinEntry dirbuster "java -jar /usr/share/Infond/bin/DirBuster-0.12/DirBuster-0.12.jar"
 
 # add entry in Gnome menu for DirBuster
 addmenu dirbuster "DirBuster is a multi threaded java application designed to brute force directories and files names on web/application servers. Often is the case now of what looks like a web server #in a state of default installation is actually not, and has pages and applications hidden within. DirBuster attempts to find these." dirbuster "false" "Pentest"
@@ -956,7 +1012,7 @@ if [ -z "$(ls /usr/share/Infond/bin | grep fierce2)" ]; then
   perl -MCPAN -e 'install Net::DNS'
   perl -MCPAN -e 'install Net::hostent'
   svn co https://svn.assembla.com/svn/fierce/fierce2/trunk/ /usr/share/Infond/bin/fierce2/
-  chmod +x /usr/share/Infond/bin/fierce/install.sh
+  chmod +x /usr/share/Infond/bin/fierce2/install.sh
   /usr/share/Infond/bin/fierce2/install.sh
   log "+" "fierce2 installed"
 else
@@ -1457,14 +1513,9 @@ firefoxadd certificatepatrol 6415
 # tamper_data-11.0.1-fx
 # does not use "latest" address in mozilla repo. 
 # We must download specific version.
-if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep tamperdata)" ]; then 
+if [ -z "$(ls -R $extensionDir | grep tamperdata)" ]; then 
   # download
-  wget https://addons.mozilla.org/fr/firefox/downloads/file/79565/tamper_data-11.0.1-fx.xpi -nc -P ~/.mozilla/firefox/*.default/extensions
-  # give access to current user
-  chown $id:$id ~/.mozilla -R
-  log "+" "chown $id:$id ~/mozilla -R fait"
-  # install addon
-  firefox -silent -offline
+  wget https://addons.mozilla.org/fr/firefox/downloads/file/79565/tamper_data-11.0.1-fx.xpi -nc -P $extensionDir
   # log
   log "+" "tamper_data firefox extension installed."
 else
@@ -1472,10 +1523,8 @@ else
 fi
 
 # chickenfoot 1.0.7
-if [ -z "$(ls -R ~/.mozilla/firefox/*.default/extensions | grep chickenfoot)" ]; then 
-  wget http://groups.csail.mit.edu/uid/chickenfoot/chickenfoot.xpi -nc -P ~/.mozilla/firefox/*.default/extensions
-  chown $id:$id ~/.mozilla -R
-  firefox -silent -offline
+if [ -z "$(ls -R $extensionDir | grep chickenfoot)" ]; then  
+  wget http://groups.csail.mit.edu/uid/chickenfoot/chickenfoot.xpi -nc -P $extensionDir
   log "+" "chickenfoot firefox extension installed."
 else
  log "I" "chickenfoot already installed. .xpi not downloaded."
@@ -1484,6 +1533,9 @@ fi
 ###########################
 # conclusion
 ###########################
+
+# install extensions
+firefox -silent -offline
 
 # chmod every other files in Infond
 id=$(ls /home)
