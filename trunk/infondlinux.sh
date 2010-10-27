@@ -37,7 +37,6 @@
 # - traceroute
 # - filezilla
 # - gnupg
-# - gpa
 # - rubygems
 # - php5
 # - libapache2-mod-php5
@@ -66,6 +65,7 @@
 # - unrar
 # - torsocks
 # - secure-delete
+# - nautilus-gksu
 
 # third party packages
 # - tor
@@ -75,12 +75,12 @@
 # manually downloaded softwares and version
 # - DirBuster (0.12)
 # - truecrypt (7.0a)
-# - metasploit framework (3.4.1)
+# - metasploit framework (3.5.0)
 # - webscarab (latest)
 # - burp suite (1.3.03)
 # - parosproxy (3.2.13)
 # - jmeter (2.4)
-# - rips (0.34)
+# - rips (0.35)
 # - google-chrome (latest)
 # - origami-pdf (latest)
 # - pdfid.py (0.0.11)
@@ -90,13 +90,14 @@
 # - fierce (latest)
 # - wifite (latest)
 # - pyloris (3.2)
-# - skipfish (1.67)
-# - hydra (5.7)
+# - skipfish (1.69 beta)
+# - hydra (5.8)
 
 # home made scripts
 # - hextoasm
 # - md5crack.py (written by Corbiero)
 # - chartoascii.py
+# - asciitochar.py
 # - rsa.py
 
 # firefox extensions
@@ -435,9 +436,9 @@ aptinstall subversion
 aptinstall traceroute
 aptinstall filezilla
 aptinstall gnupg
-aptinstall gpa
 aptinstall unrar
 aptinstall secure-delete
+aptinstall nautilus-gksu
 
 # add category to .desktop
 addcategory bluefish Accessories
@@ -572,7 +573,7 @@ aptinstall spikeproxy
 
 downloadicon spikeproxy http://icon.downv.com/32x32/5/71/1035076.f8375b2ff667dd9e260527fa6a173b94.gif
 
-addmenu spikeproxy "web application auditing tool." "bash -c 'gnome-terminal -e "sudo spikeproxy";google-chrome --proxy-server=localhost:8080 http://spike'" "false" "Pentest"
+addmenu spikeproxy "web application auditing tool." "bash -c 'gnome-terminal -e \"sudo spikeproxy\";google-chrome --proxy-server=localhost:8080 http://spike'" "false" "Pentest"
 
 ##################################
 # torsocks
@@ -669,14 +670,14 @@ addmenu webspy "display sniffed URLs in Netscape in real-time." "bash -c 'cd /tm
 
 
 ##################################
-# skipfish 1.67
+# skipfish 1.69 beta
 ##################################
 
 aptinstall libidn11-dev
 if [ -z "$(ls /usr/share/Infond/bin | grep skipfish)" ]; then
-  wget http://skipfish.googlecode.com/files/skipfish-1.67b.tgz -nc -P /tmp
+  wget http://skipfish.googlecode.com/files/skipfish-1.69b.tgz -nc -P /tmp
   tar xzf /tmp/skipfish* -C /usr/share/Infond/bin
-  bash -c 'cd /usr/share/Infond/bin/skipfish-1.67b; make' 
+  bash -c 'cd /usr/share/Infond/bin/skipfish-1.69b; make' 
   rm /tmp/skipfish*
   log "+" "skipfish compiled and installed"
 else
@@ -685,11 +686,11 @@ fi
 
 downloadicon skipfish http://img.maxisciences.com/google/logo-google_12964_w250.jpg
 
-addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"rm -r /tmp/skipfish;mkdir /tmp/skipfish;cp -r /usr/share/Infond/bin/skipfish-1.67b/* /tmp/skipfish;cd /tmp/skipfish; cp /tmp/skipfish/dictionaries/default.wl /tmp/skipfish/skipfish.wl; ./skipfish -h;echo ex: $ ./skipfish -o /tmp/results http://www.example.com;bash\"" "true" "Pentest"
+addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"rm -r /tmp/skipfish;mkdir /tmp/skipfish;cp -r /usr/share/Infond/bin/skipfish-1.69b/* /tmp/skipfish;cd /tmp/skipfish; cp /tmp/skipfish/dictionaries/default.wl /tmp/skipfish/skipfish.wl; ./skipfish -h;echo ex: $ ./skipfish -o /tmp/results http://www.example.com;bash\"" "true" "Pentest"
 
 
 ##################################
-# hydra 5.7
+# hydra 5.8
 ##################################
 
 aptinstall libssh-dev
@@ -697,9 +698,9 @@ aptinstall libpq-dev
 aptinstall libncp-dev
 
 if [ -z "$(ls /usr/local/bin | grep hydra)" ]; then
-  wget http://freeworld.thc.org/releases/hydra-5.7-src.tar.gz -nc -P /tmp
+  wget http://freeworld.thc.org/releases/hydra-5.8-src.tar.gz -nc -P /tmp
   tar xzf /tmp/hydra* -C /tmp
-  bash -c 'cd /tmp/hydra-5.7-src; ./configure; make; make install' 
+  bash -c 'cd /tmp/hydra-5.8-src; ./configure; make; make install' 
   rm /tmp/hydra*
   log "+" "hydra compiled and installed"
 else
@@ -822,6 +823,28 @@ downloadicon chartoascii http://www.prntrkmt.org/hieroglyphs/monoliterals/pict/b
 
 addmenu chartoascii "script to encode a string in ascii." "bash -c 'cd /tmp;echo example: $ chartoascii mystring;bash;'" "true" "Accessories" 
 
+##################################
+# asciitochar.py
+##################################
+
+echo "
+import sys
+# usage:
+# asciitochar.py 0x6262626262
+h = sys.argv[1][2:]
+result = ''
+for i in range(0,len(h),2):
+	c = ''+h[i]+h[i+1]
+	result += chr(int(''+h[i]+h[i+1],16))
+print result
+" > /usr/share/Infond/bin/asciitochar.py
+
+addBinEntry asciitochar "python /usr/share/Infond/bin/asciitochar.py \$1"
+
+downloadicon asciitochar http://www.prntrkmt.org/hieroglyphs/monoliterals/pict/bwvulture.gif
+
+addmenu asciitochar "script to encode a string in ascii." "bash -c 'cd /tmp;echo example: $ asciitochar 0x64636263;bash;'" "true" "Accessories" 
+
 
 ##################################
 # hextoasm
@@ -867,7 +890,7 @@ addmenu hextoasm "prints asm instructions from an hex strings ." "bash -c 'cd /t
 ##################################
 # rsa.py
 ##################################
-rsa_readme = 'source: http://www.amk.ca/python/writing/crypto-curiosa
+rsa_readme='source: http://www.amk.ca/python/writing/crypto-curiosa
 
 rsa.py (4 lines): Performs RSA public key encryption/decryption. It requires two arguments, and can accept a single option:  -d  for decryption (the default action is encryption). The first argument must be the required exponent, expressed in hexadecimal, and the second is the modulus, also in hex. You still have to choose the correct exponent, whether the  -d  option is present or not;  -d  simply changes the number of bytes read at a single time.
 
@@ -976,7 +999,7 @@ fi
 
 downloadicon bboxkeys http://www.renaudbaivier.com/public/News/logo-bouygues-telecom.png
 addBinEntry bboxkeys /usr/share/Infond/bin/bboxkeys
-addmenu bbkeys "Bouygues Telecom Bbox default WPA key Generator" "bash -c 'cd /tmp;bboxkeys;bash;'" "true" "Accessories"
+addmenu bboxkeys "Bouygues Telecom Bbox default WPA key Generator" "bash -c 'cd /tmp;bboxkeys;bash;'" "true" "Accessories"
 
 ##################################
 # burp suite 1.3.03
@@ -1179,7 +1202,7 @@ a2ensite ssl
 
 
 ##################################
-# rips-scanner 0.34
+# rips-scanner 0.35
 ##################################
 
 # needs apache and php
@@ -1187,9 +1210,9 @@ a2ensite ssl
 # install
 if [ -z "$(ls /var/www | grep rips)" ]; then
   rm -r /tmp/rips*
-  wget "http://sourceforge.net/projects/rips-scanner/files/rips-0.34.zip/download" -nc -P /tmp
+  wget "http://sourceforge.net/projects/rips-scanner/files/rips-0.35.zip/download" -nc -P /tmp
   mkdir /var/www/rips
-  unzip /tmp/rips-0.34.zip -d /var/www/rips
+  unzip /tmp/rips-0.35.zip -d /var/www/rips
   chown -R www-data: /var/www/rips 
   chmod 440 -R /var/www/rips
   chmod -R ug+X /var/www/rips
@@ -1288,9 +1311,9 @@ if [ -z "$(ls /var/www | grep wiki)" ]; then
   sed "/$FROM/,/$TO/ s/$DIV/$DIV$INSERT_THIS/" -i $FILE
 
   # hide tool box to users. Only admin can see it
-  FILE="/var/www/wiki/includes/SpecialPage.php"
+  #FILE="/var/www/wiki/includes/SpecialPage.php"
   # add ## at the beginning of string
-  sed '/Userlogin\x27 / s/^/##/' -i $FILE
+  #sed '/Userlogin\x27 / s/^/##/' -i $FILE
 
   # user can't create account. Only admin can do it.
   FILE="/var/www/wiki/includes/DefaultSettings.php"
@@ -1393,17 +1416,17 @@ addmenu paros "A Java based HTTP/HTTPS proxy for assessing web application vulne
 
 
 ##################################
-# - metasploit framework 3.4.1-linux-i386
+# - metasploit framework 3.5.0-linux-i386
 ##################################
 
 # install
 if [ -z "$(ls /usr/share/Infond/bin | grep framework-3.4.1)"  ];then
-  wget http://www.metasploit.com/releases/framework-3.4.1-linux-i686.run -nc -P /usr/share/Infond/bin/
-  log "+" "metasploit framework 3.4.1 downloaded"
-  bash /usr/share/Infond/bin/framework-3.4.1-linux-i686.run 
-  log "+" "metasploit framework 3.4.1 installed"
+  wget http://updates.metasploit.com/data/releases/framework-3.5.0-linux-i686.run -nc -P /usr/share/Infond/bin/
+  log "+" "metasploit framework 3.5.0 downloaded"
+  bash /usr/share/Infond/bin/framework-3.5.0-linux-i686.run 
+  log "+" "metasploit framework 3.5.0 installed"
 else
-  log "I" "metasploit framework 3.4.1 already downloaded. Not updated."
+  log "I" "metasploit framework 3.5.0 already downloaded. Not updated."
 fi
 
 # download icon
