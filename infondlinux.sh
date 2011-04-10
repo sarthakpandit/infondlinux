@@ -2,7 +2,8 @@
 # script config Infondlinux
 # distributed under New BSD Licence
 # created by t0ka7a
-# version 0.4
+# version 0.5
+# 2011-04-10
 # this script provides a post-installation on Ubuntu
 # careful: the script closes current firefox instances.
 
@@ -73,9 +74,9 @@
 # - virtualbox
 
 # manually downloaded softwares and version
-# - DirBuster (0.12)
+# - DirBuster (1.0RC1)
 # - truecrypt (7.0a)
-# - metasploit framework (3.5.0)
+# - metasploit framework (3.6)
 # - webscarab (latest)
 # - burp suite (1.3.03)
 # - parosproxy (3.2.13)
@@ -85,13 +86,12 @@
 # - origami-pdf (latest)
 # - pdfid.py (0.0.11)
 # - pdf-parser.pym (0.3.7)
-# - mediawiki (1.16.0)
 # - sqlmap (0.8)
 # - fierce (latest)
 # - wifite (latest)
 # - pyloris (3.2)
-# - skipfish (1.69 beta)
-# - hydra (5.8)
+# - skipfish (1.86 beta)
+# - hydra (6.2)
 
 # home made scripts
 # - hextoasm
@@ -670,14 +670,14 @@ addmenu webspy "display sniffed URLs in Netscape in real-time." "bash -c 'cd /tm
 
 
 ##################################
-# skipfish 1.69 beta
+# skipfish
 ##################################
 
 aptinstall libidn11-dev
 if [ -z "$(ls /usr/share/Infond/bin | grep skipfish)" ]; then
-  wget http://skipfish.googlecode.com/files/skipfish-1.69b.tgz -nc -P /tmp
+  wget http://skipfish.googlecode.com/files/skipfish-1.86b.tgz -nc -P /tmp
   tar xzf /tmp/skipfish* -C /usr/share/Infond/bin
-  bash -c 'cd /usr/share/Infond/bin/skipfish-1.69b; make' 
+  bash -c 'cd /usr/share/Infond/bin/skipfish-1.86b; make' 
   rm /tmp/skipfish*
   log "+" "skipfish compiled and installed"
 else
@@ -690,7 +690,7 @@ addmenu skipfish "A fully automated, active web application security reconnaissa
 
 
 ##################################
-# hydra 5.8
+# hydra
 ##################################
 
 aptinstall libssh-dev
@@ -698,9 +698,9 @@ aptinstall libpq-dev
 aptinstall libncp-dev
 
 if [ -z "$(ls /usr/local/bin | grep hydra)" ]; then
-  wget http://freeworld.thc.org/releases/hydra-5.8-src.tar.gz -nc -P /tmp
+  wget http://freeworld.thc.org/releases/hydra-6.2-src.tar.gz -nc -P /tmp
   tar xzf /tmp/hydra* -C /tmp
-  bash -c 'cd /tmp/hydra-5.8-src; ./configure; make; make install' 
+  bash -c 'cd /tmp/hydra-6.2-src; ./configure; make; make install' 
   rm /tmp/hydra*
   log "+" "hydra compiled and installed"
 else
@@ -965,12 +965,12 @@ addmenu origami "ruby framework for pdf generation" "bash -c 'cd /tmp;cat /usr/s
 
 
 ##################################
-# dirBuster-0.12
+# dirBuster                      #
 ##################################
 
 # install
 if [ -z "$(ls /usr/share/Infond/bin | grep DirBuster)" ]; then
-  wget "http://downloads.sourceforge.net/dirbuster/DirBuster-0.12.tar.bz2" -nc -P /tmp
+  wget "http://downloads.sourceforge.net/project/dirbuster/DirBuster%20%28jar%20%2B%20lists%29/1.0-RC1/DirBuster-1.0-RC1.tar.bz2" -nc -P /tmp
   tar xjvf /tmp/DirBuster* -C /usr/share/Infond/bin
   rm -r /tmp/DirBuster*
   log "+" "dirbuster downloaded"
@@ -1232,110 +1232,6 @@ addBinEntry rips "google-chrome http://127.0.0.1/rips"
 # add entry in Gnome menu
 addmenu rips "RIPS is a static source code analyser for vulnerabilities in PHP webapplications." rips "false" "Pentest"
 
-##################################
-# mediawiki
-##################################
-
-# install and secure mediawiki
-# needs apache, php, mysql
-
-if [ -z "$(ls /var/www | grep wiki)" ]; then
-  rm -r /tmp/wiki*
-  wget "http://download.wikimedia.org/mediawiki/1.16/mediawiki-1.16.0.tar.gz" -nc -P /tmp
-  tar xzf /tmp/mediawiki-1.16.0.tar.gz -C /tmp
-  rm /tmp/mediawiki-1.16.0.tar.gz
-  mv /tmp/mediawiki-1.16.0 /var/www/wiki
-  chown -R www-data: /var/www/wiki 
-  chmod 440 -R /var/www/wiki
-  chmod -R ug+X /var/www/wiki
-  chmod 777 -R /var/www/wiki/config
-  echo "Please configure your wiki."
-  echo "The name for your wiki must be 'wiki'"
-  echo "Remember the credentials you will submit: you will need them to log on you wiki."
-  echo "When install is successful, close firefox tab or window to hold on with this script."
-  echo "Please, press enter."
-  read pause
-  echo "Firefox is starting... Don't forget, you must use 'wiki' as name for your wiki."
-  firefox http://localhost/wiki/index.php
-  mv /var/www/wiki/config/LocalSettings.php /var/www/wiki/
-  
-  # secure the wiki
-  # source: http://camillereverchon.net/mediawiki/index.php?title=S%C3%A9curiser_son_wiki
-
-  # only registered users can edit
-  echo ""  >> /var/www/wiki/LocalSettings.php
-  echo "# only registered users can edit" >> /var/www/wiki/LocalSettings.php
-  echo "\$wgGroupPermissions['*']['edit'] = false;"  >> /var/www/wiki/LocalSettings.php
-
-  # only registered users can read (except main page)
-  echo ""  >> /var/www/wiki/LocalSettings.php
-  echo "\$wgWhitelistRead = array( \"Accueil\", \"Special:Userlogin\" );"   >> /var/www/wiki/LocalSettings.php
-  echo "\$wgGroupPermissions['*']['read'] = false;"   >> /var/www/wiki/LocalSettings.php
-
-  # free inscription forbidden
-  # file
-  FILE="/var/www/wiki/includes/DefaultSettings.php"
-  # find the number of line with pattern wgGroupPermissions['*']['createaccount']
-  # sed does not like ' and [ and ] and *. replace them:
-  # ' -> \x27
-  # [ -> \[
-  # ] -> \]
-  # * -> \*
-  LINE=$(sed -n '/wgGroupPermissions\[\x27\*\x27\]\[\x27createaccount\x27\]/=' $FILE)
-  # replace line
-  # sed does not like either $VARIABLE.
-  # use $VARIABLE -> $(echo $VARIABLE)
-  AFTER="\$wgGroupPermissions['*']['createaccount']    = false;"
-  sed -e "$(echo $LINE)s/.*/$(echo $AFTER)/"  -i $FILE 
-
-  # change message loginprompt in french version (the default message socks)
-  # default message : "Vous devez activer les témoins (''cookies'') pour vous connecter à {{SITENAME}}.
-  # replace it with : "veuillez saisir votre identifiant et votre mot de passe"
-  FILE="/var/www/wiki/languages/messages/MessagesFr.php"
-  LINE=$(sed -n '/loginprompt/=' $FILE)
-  AFTER="\x27loginprompt\x27 \=\> \"veuillez saisir votre identifiant et votre mot de passe\","
-  sed -e "$(echo $LINE)s/.*/$(echo $AFTER)/"  -i $FILE 
-
-  # hide tool box to people not logged in
-  # add <?php if(\$this->data['loggedin']) { ?>
-  FILE="/var/www/wiki/skins/MonoBook.php"
-  BEGIN=$(sed -n '/div class="portlet" id="p-tb"/=' $FILE)
-  AFTER="<?php if(\$this->data['loggedin']) { ?>"
-  sed -e "$(echo $BEGIN)a$(echo $AFTER)"  -i $FILE 
-  # add <?php } ?>
-  FILE="/var/www/wiki/skins/MonoBook.php"
-  DIV="<\/div>"
-  FROM="function toolbox"
-  TO=$DIV
-  INSERT_THIS=" <?php } ?>"
-  sed "/$FROM/,/$TO/ s/$DIV/$DIV$INSERT_THIS/" -i $FILE
-
-  # hide tool box to users. Only admin can see it
-  #FILE="/var/www/wiki/includes/SpecialPage.php"
-  # add ## at the beginning of string
-  #sed '/Userlogin\x27 / s/^/##/' -i $FILE
-
-  # user can't create account. Only admin can do it.
-  FILE="/var/www/wiki/includes/DefaultSettings.php"
-  BEFORE_THIS="\$wgGroupPermissions\[\x27user\x27\]\[\x27move\x27\]"
-  INSERT_THIS="\$wgGroupPermissions\[\x27user\x27\]\[\x27createaccount\x27\] \= false\;"
-  sed -e "/$BEFORE_THIS/i$INSERT_THIS"  -i $FILE 
-
-  log "+" "mediawiki installed and configured"
-
-  # download icon
-  downloadicon wiki http://www.watblog.com/wp-content/uploads/2008/03/wikipedia-ball.jpg
-
-  # create wiki.sh and add wiki.sh shortcut in /usr/bin
-  addBinEntry wiki "google-chrome http://127.0.0.1/wiki"
-
-  # add entry in Gnome menu
-  addmenu wiki "Your own wiki." wiki "false" "Accessories"
-
-else
-  log "I" "mediawiki already in /var/www. Not downloaded."
-fi
-
 
 
 ##################################
@@ -1416,17 +1312,17 @@ addmenu paros "A Java based HTTP/HTTPS proxy for assessing web application vulne
 
 
 ##################################
-# - metasploit framework 3.5.0-linux-i386
+# - metasploit framework
 ##################################
 
 # install
-if [ -z "$(ls /usr/share/Infond/bin | grep framework-3.4.1)"  ];then
-  wget http://updates.metasploit.com/data/releases/framework-3.5.0-linux-i686.run -nc -P /usr/share/Infond/bin/
-  log "+" "metasploit framework 3.5.0 downloaded"
-  bash /usr/share/Infond/bin/framework-3.5.0-linux-i686.run 
-  log "+" "metasploit framework 3.5.0 installed"
+if [ -z "$(ls /usr/share/Infond/bin | grep framework)"  ];then
+  wget http://updates.metasploit.com/data/releases/framework-3.6.0-linux-full.run -nc -P /usr/share/Infond/bin/
+  log "+" "metasploit framework downloaded"
+  bash /usr/share/Infond/bin/framework-3.6.0-linux-full.run 
+  log "+" "metasploit framework installed"
 else
-  log "I" "metasploit framework 3.5.0 already downloaded. Not updated."
+  log "I" "metasploit framework already downloaded. Not updated."
 fi
 
 # download icon
