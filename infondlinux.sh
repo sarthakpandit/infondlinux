@@ -191,11 +191,11 @@ addBinEntry() (
 # remove package using apt
 aptremove() ( 
   # if package not installed
-  [ -z $(dpkg --list $1 | grep ii) ] && log "I" "$1 not installed. can't be removed" && return 1
+  [ -z "$(dpkg --list $1 | grep ii)" ] && log "I" "$1 not installed. can't be removed" && return 1
   # remove package
   apt-get --auto-remove -y --allow-unauthenticated remove $1
   # if package well removed
-  [ -z $(dpkg --list $1 | grep ii) ] && log "+" "$1 removed"   
+  [ -z "$(dpkg --list $1 | grep ii)" ] && log "+" "$1 removed"   
 )
 
 #####################################
