@@ -383,7 +383,7 @@ fi
 if [ -z "$(cat /etc/apt/sources.list | grep Commercial)" ]; then
   echo "" >> /etc/apt/sources.list
   echo "## Commercial" >> /etc/apt/sources.list
-  echo "deb http://archive.canonical.com/ubuntu 'lsb_release -sc' partner " >> /etc/apt/sources.list
+  echo "deb http://archive.canonical.com/ubuntu $(lsb_release -sc) partner " >> /etc/apt/sources.list
   log "+" "repository Commercial added to apt sources list"
 else
   log "I" "repository Commercial already in apt sources list. Not added"
@@ -393,7 +393,7 @@ fi
 if [ -z "$(cat /etc/apt/sources.list | grep torproject)" ]; then
   echo "" >> /etc/apt/sources.list
   echo "## tor" >> /etc/apt/sources.list
-  echo "deb http://deb.torproject.org/torproject.org 'lsb_release -sc' main" >> /etc/apt/sources.list
+  echo "deb http://deb.torproject.org/torproject.org $(lsb_release -sc) main" >> /etc/apt/sources.list
   gpg --keyserver keys.gnupg.net --recv 886DDD89
   gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
   log "+" "repository torproject added to apt sources list"
@@ -405,7 +405,7 @@ fi
 if [ -z "$(cat /etc/apt/sources.list | grep virtualbox)" ]; then
   echo "" >> /etc/apt/sources.list
   echo "## virtualbox" >> /etc/apt/sources.list
-  echo "deb http://download.virtualbox.org/virtualbox/debian 'lsb_release -sc' contrib" >> /etc/apt/sources.list
+  echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib" >> /etc/apt/sources.list
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 98AB5139  
   apt-get update
   log "+" "virtualbox added to apt sources list"
