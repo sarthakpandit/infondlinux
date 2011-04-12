@@ -93,6 +93,8 @@
 # - pyloris (3.2)
 # - skipfish (1.86 beta)
 # - hydra (6.2)
+# - Maltego (3.0)
+# - set
 
 # home made scripts
 # - hextoasm
@@ -427,7 +429,7 @@ fi
 # update
 apt-get update > /dev/null
 log "+" "apt-get update"
-apt-get upgrade
+apt-get upgrade -y
 log "+" "apt-get upgrade"
 
 # apt remove useless packages
