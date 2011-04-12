@@ -68,11 +68,13 @@
 # - torsocks
 # - secure-delete
 # - nautilus-gksu
+# - sqlmap
 
 # third party packages
 # - tor
 # - tor-geoipdb
 # - virtualbox 4.0
+# - google-chrome-stable
 
 # manually downloaded softwares and version
 # - DirBuster (1.0RC1)
@@ -83,11 +85,9 @@
 # - parosproxy (3.2.13)
 # - jmeter (2.4)
 # - rips (0.35)
-# - google-chrome (latest)
 # - origami-pdf (latest)
 # - pdfid.py (0.0.11)
 # - pdf-parser.pym (0.3.7)
-# - sqlmap (0.8)
 # - fierce (latest)
 # - wifite (latest)
 # - pyloris (3.2)
@@ -407,12 +407,21 @@ if [ -z "$(cat /etc/apt/sources.list | grep virtualbox)" ]; then
   echo "## virtualbox" >> /etc/apt/sources.list
   echo "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib" >> /etc/apt/sources.list
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 98AB5139  
-  apt-get update
   log "+" "virtualbox added to apt sources list"
 else
   log "I" "virtualbox already in apt sources list. Not added"
 fi
 
+# add google repository
+if [ -z "$(cat /etc/apt/sources.list | grep google)" ]; then
+  echo "" >> /etc/apt/sources.list
+  echo "## google" >> /etc/apt/sources.list
+  echo "deb http://dl.google.com/linux/deb/ stable main" >> /etc/apt/sources.list
+  wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+  log "+" "google added to apt sources list"
+else
+  log "I" "google already in apt sources list. Not added"
+fi
 
 
 # update
@@ -556,26 +565,14 @@ fi
 ##################################
 
 # download and install
-if [ -z "$(ls /usr/share/Infond/bin | grep google-chrome)" ]; then
-  wget http://dl.google.com/linux/direct/google-chrome-stable_current_i386.deb -nc -P /usr/share/Infond/bin*
-  gdebi -n /usr/share/Infond/bin/google-chrome*
-  log "+" "google-chrome installed"
-else
-  log "I" "google-chrome already in /usr/share/Infond/bin. Not downloaded."
-fi
+aptinstall google-chrome-stable
 
 
-##################################
-# sqlmap 0.8
-##################################
+#################################
+# sqlmap
+#################################
 
-if [ -z "$(ls /usr/share/Infond/bin | grep sqlmap)" ]; then
-  wget http://downloads.sourceforge.net/project/sqlmap/sqlmap/0.8/sqlmap_0.8-1_all.deb -nc -P /usr/share/Infond/bin*
-  gdebi -n /usr/share/Infond/bin/sqlmap*
-  log "+" "sqlmap installed"
-else
-  log "I" "sqlmap already in /usr/share/Infond/bin. Not downloaded."
-fi
+aptinstall sqlmap
 
 downloadicon sqlmap http://sqlmap.sourceforge.net/sqlmap.png
 
@@ -664,7 +661,7 @@ addmenu dsniff "password sniffer." "bash -c 'cd /tmp;dsniff -h;bash'" "true" Tra
 downloadicon filesnarf http://i1-news.softpedia-static.com/images/extra/LINUX/large/protechone-large_014.png
 addmenu filesnarf "sniff files from NFS traffic." "bash -c 'cd /tmp;filesnarf -h;bash'" "true" Transport
 downloadicon macof http://www.cisco.com/en/US/i/100001-200000/140001-150000/148001-149000/148494.jpg
-addmenu macof "flood a switched LAN with random MAC addresses." "bash -c 'cd /tmp;macof -h;bash'" "true" Transport
+addmenu macof "flood a switched LAN with random MAC addresses." "bash -c 'cd /tmp;macof -h;bash'" "true" "Ddos"
 downloadicon mailsnarf http://www.monnaieservices.org/Images/mail.jpg
 addmenu mailsnarf "sniff mail messages in Berkeley mbox format." "bash -c 'cd /tmp;mailsnarf -h;bash'" "true" Transport
 downloadicon msgsnarf http://www.smiley-gratos.com/smileys/1377-chat-triste-51.gif
@@ -674,9 +671,9 @@ addmenu sshmitm "SSH monkey-in-the-middle." "bash -c 'cd /tmp;sshmitm -h;bash'" 
 downloadicon sshow http://android.smartphonefrance.info/news/unlock.jpg
 addmenu sshmitm "SSH traffic analysis tool." "bash -c 'cd /tmp;sshow -h;bash'" "true" Transport
 downloadicon tcpkill http://www.appetitebooks.ca/images/cms/Image/Knife.jpg
-addmenu tcpkill "kill TCP connections on a LAN." "bash -c 'cd /tmp;tcpkill -h;bash'" "true" Transport
-downloadicon tcpnice http://www.hybridworks.jp/apps/nibclock/img/_icons/snail.gif
-addmenu tcpnice "slow down TCP connections on a LAN." "bash -c 'cd /tmp;tcpnice -h;bash'" "true" Transport
+addmenu tcpkill "kill TCP connections on a LAN." "bash -c 'cd /tmp;tcpkill -h;bash'" "true" "Ddos"
+downloadicon tcpnice http://www.helleniccommunity.com/youth/images/snail.gif
+addmenu tcpnice "slow down TCP connections on a LAN." "bash -c 'cd /tmp;tcpnice -h;bash'" "true" "Ddos"
 downloadicon urlsnarf http://static.pcinpact.com/images/bd/news/mini-69414-http-world-wide-web-www.jpg
 addmenu urlsnarf "sniff HTTP requests in Common Log Format." "bash -c 'cd /tmp;urlsnarf -h;bash'" "true" Transport
 downloadicon webmitm http://www.linux-france.org/prj/inetdoc/securite/tutoriel/images/middle.png
@@ -689,20 +686,40 @@ addmenu webspy "display sniffed URLs in Netscape in real-time." "bash -c 'cd /tm
 # skipfish
 ##################################
 
-aptinstall libidn11-dev
-if [ -z "$(ls /usr/share/Infond/bin | grep skipfish)" ]; then
-  wget http://skipfish.googlecode.com/files/skipfish-1.86b.tgz -nc -P /tmp
-  tar xzf /tmp/skipfish* -C /usr/share/Infond/bin
-  bash -c 'cd /usr/share/Infond/bin/skipfish-1.86b; make' 
-  rm /tmp/skipfish*
-  log "+" "skipfish compiled and installed"
-else
-  log "I" "skipfish already in /usr/share/Infond/bin. Not downloaded."
-fi
+aptinstall skipfish
 
 downloadicon skipfish http://img.maxisciences.com/google/logo-google_12964_w250.jpg
 
-addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"rm -r /tmp/skipfish;mkdir /tmp/skipfish;cp -r /usr/share/Infond/bin/skipfish-1.69b/* /tmp/skipfish;cd /tmp/skipfish; cp /tmp/skipfish/dictionaries/default.wl /tmp/skipfish/skipfish.wl; ./skipfish -h;echo ex: $ ./skipfish -o /tmp/results http://www.example.com;bash\"" "true" "Pentest"
+addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"cd \tmp; skipfish -h\"" "true" "Pentest"
+
+##################################
+# maltego
+##################################
+
+wget http://www.paterva.com/malv3/MaltegoCESetup.v3.0.936.deb -nc -P /tmp
+aptinstall gdebi
+gdebi -n /tmp/Maltego*
+log "+" "maltego installed"
+
+
+##################################
+# set
+##################################
+
+if [ -z "$(ls /usr/share/Infond/bin | grep set)" ]; then
+  svn co http://svn.secmaniac.com/social_engineering_toolkit /usr/share/Infond/bin/set
+  python /usr/share/Infond/bin/set/setup.py install
+  log "+" "set installed"
+else
+  log "I" "set already in /usr/share/Infond/bin. Not downloaded."
+fi
+
+downloadicon 'set' http://www.secmaniac.com/wp-content/uploads/2010/09/set-small-card1.png
+
+addBinEntry 'set' "/usr/share/Infond/bin/set/set"
+
+addmenu 'set' "The social engineer toolkit." 'set' "true" "Pentest"
+
 
 
 ##################################
@@ -745,7 +762,7 @@ downloadicon pyloris http://aphs.worldnomads.com/jamesanddan/3493/SlowLoris.jpg
 
 addBinEntry pyloris "python /usr/share/Infond/bin/pyloris-3.2/pyloris.py"
 
-addmenu pyloris "PyLoris is a scriptable tool for testing a web server's vulnerability to Denial of Service (DoS) attacks which supports SOCKS, SSL, and all HTTP request methods." pyloris "true" "Transport"
+addmenu pyloris "PyLoris is a scriptable tool for testing a web server's vulnerability to Denial of Service (DoS) attacks which supports SOCKS, SSL, and all HTTP request methods." pyloris "true" "Ddos"
 
 
 
@@ -906,7 +923,7 @@ addmenu hextoasm "prints asm instructions from an hex strings ." "bash -c 'cd /t
 ##################################
 # rsa.py
 ##################################
-rsa_readme='source: http://www.amk.ca/python/writing/crypto-curiosa
+rsa_readme="source: http://www.amk.ca/python/writing/crypto-curiosa
 
 rsa.py (4 lines): Performs RSA public key encryption/decryption. It requires two arguments, and can accept a single option:  -d  for decryption (the default action is encryption). The first argument must be the required exponent, expressed in hexadecimal, and the second is the modulus, also in hex. You still have to choose the correct exponent, whether the  -d  option is present or not;  -d  simply changes the number of bytes read at a single time.
 
@@ -929,7 +946,7 @@ A common Python idiom to read lines from a file looks like this:
 
 while(1):
     line = sys.stdin.readline()
-    if line == "": break     # readline() returns an empty string at EOF
+    if line == '': break     # readline() returns an empty string at EOF
     ... do something with the line ...
 
 This is very bad for our line count. Python only allows at most two blocks per line, so you can t write code like for i in [1,2,3]: if i==2: print  Found 2! ; that will cause a syntax error. However, this would mean our I/O loop would take at least 3 lines, which is unacceptable. A solution is to exploit the fact that Python offers short-circuit evaluation. When asked to evaluate an expression like A and B, if A is false, there s no point in evaluating B, since the whole expression will be false no matter what B s value is. This is part of the Python language specification and not subject to change, because it s a useful behaviour. You can write an expression like booleanValue and timeConsumingFunction(), and know that timeConsumingFunction() will only be called if it can t be avoided, which is when booleanValue is true.
@@ -940,7 +957,7 @@ while(line):
     line = sys.stdin.readline()
     line and someFunction(line)
 
-someFunction(line) is then only called if line is not the empty string, and the while loop ends when line becomes empty. This trick isn t recommended for use in Python programs that you want to be maintainable, but short-circuit evaluation is a useful feature that you should be aware of; conditions should be written with simple variables first, and function evaluations later, for faster execution by avoiding unnecessary function calls.'
+someFunction(line) is then only called if line is not the empty string, and the while loop ends when line becomes empty. This trick isn t recommended for use in Python programs that you want to be maintainable, but short-circuit evaluation is a useful feature that you should be aware of; conditions should be written with simple variables first, and function evaluations later, for faster execution by avoiding unnecessary function calls."
 
 echo "#!/usr/local/bin/python 
 from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
@@ -1013,7 +1030,7 @@ if [ -z "$(ls /usr/share/Infond/bin | grep bboxkeys)" ]; then
   chmod +x /usr/share/Infond/bin/bboxkeys
 fi
 
-downloadicon bboxkeys http://www.renaudbaivier.com/public/News/logo-bouygues-telecom.png
+downloadicon bboxkeys http://www.giiks.com/images/bbox/logo-bbox-baseline.jpg
 addBinEntry bboxkeys /usr/share/Infond/bin/bboxkeys
 addmenu bboxkeys "Bouygues Telecom Bbox default WPA key Generator" "bash -c 'cd /tmp;bboxkeys;bash;'" "true" "Accessories"
 
@@ -1024,11 +1041,11 @@ addmenu bboxkeys "Bouygues Telecom Bbox default WPA key Generator" "bash -c 'cd 
 # install
 if [ -z "$(ls /usr/share/Infond/bin | grep burp)" ]; then
   rm -r /tmp/burp*
-  wget "http://portswigger.net/suite/burpsuite_v1.3.03.zip" -nc -P /tmp
+  wget "http://portswigger.net/burp/burpsuite_v1.3.03.zip" -nc -P /tmp
   unzip /tmp/burp* -d /tmp
   rm /tmp/burp*.zip
-  mv /tmp/burp* /usr/share/Infond/bin/burp/
-  rm -r /tmp/burp*
+  mkdir /usr/share/Infond/bin/burp
+  mv /tmp/burp*/* /usr/share/Infond/bin/burp/
   log "+" "burp downloaded"
 else
   log "I" "burp already in /usr/share/Infond/bin. Not downloaded."
@@ -1104,7 +1121,7 @@ else
 fi
 
 # download icon
-downloadicon webscarab http://www.owasp.org/skins/monobook/ologo.gif 
+downloadicon webscarab http://www.gnucitizen.org/images/owasp-small.jpg 
 
 # create webscarab.sh and add webscarab.sh shortcut in /usr/bin
 addBinEntry webscarab "java -jar /usr/share/Infond/bin/webscarab/webscarab.jar"
@@ -1183,7 +1200,7 @@ fi
 # download icon
 downloadicon jmeter http://jakarta.apache.org/jmeter/images/logo.jpg 
 
-# create webscarab.sh and add webscarab.sh shortcut in /usr/bin
+# create jmeter.sh and add jmeter.sh shortcut in /usr/bin
 addBinEntry jmeter "java -jar /usr/share/Infond/bin/jmeter/jakarta-jmeter-2.4/bin/ApacheJMeter.jar"
 
 # add entry in Gnome menu
@@ -1321,9 +1338,11 @@ addmenu paros "A Java based HTTP/HTTPS proxy for assessing web application vulne
 
 # install
 if [ -z "$(ls /usr/share/Infond/bin | grep framework)"  ];then
-  wget http://updates.metasploit.com/data/releases/framework-3.6.0-linux-full.run -nc -P /usr/share/Infond/bin/
+  wget http://updates.metasploit.com/data/releases/framework-3.6.0-linux-mini.run -nc -P /tmp
   log "+" "metasploit framework downloaded"
-  bash /usr/share/Infond/bin/framework-3.6.0-linux-full.run 
+  chmod +x /tmp/framework*
+  bash /tmp/framework*
+  rm /tmp/framework*
   log "+" "metasploit framework installed"
 else
   log "I" "metasploit framework already downloaded. Not updated."
