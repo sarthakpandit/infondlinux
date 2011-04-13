@@ -576,7 +576,7 @@ aptinstall google-chrome-stable
 
 aptinstall sqlmap
 
-downloadicon sqlmap http://sqlmap.sourceforge.net/sqlmap.png
+downloadicon sqlmap http://papaismurf.net/wp-content/uploads/2010/10/sqlmap.jpg
 
 addmenu sqlmap "sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of back-end database servers." "bash -c 'cd /tmp;sqlmap -h;bash'" "true" "Pentest"
 
@@ -666,7 +666,7 @@ downloadicon macof http://www.cisco.com/en/US/i/100001-200000/140001-150000/1480
 addmenu macof "flood a switched LAN with random MAC addresses." "bash -c 'cd /tmp;macof -h;bash'" "true" "Ddos"
 downloadicon mailsnarf http://www.monnaieservices.org/Images/mail.jpg
 addmenu mailsnarf "sniff mail messages in Berkeley mbox format." "bash -c 'cd /tmp;mailsnarf -h;bash'" "true" Transport
-downloadicon msgsnarf http://www.smiley-gratos.com/smileys/1377-chat-triste-51.gif
+downloadicon msgsnarf http://fr.academic.ru/pictures/frwiki/49/120px-Cat-eating-prey.jpg
 addmenu msgsnarf "sniff chat messages." "bash -c 'cd /tmp;msgsnarf -h;bash'" "true" Transport
 downloadicon sshmitm http://a.images.blip.tv/G0tmi1k-ManInTheMiddleMITMAttack698.gif
 addmenu sshmitm "SSH monkey-in-the-middle." "bash -c 'cd /tmp;sshmitm -h;bash'" "true" Transport
@@ -692,7 +692,7 @@ aptinstall skipfish
 
 downloadicon skipfish http://img.maxisciences.com/google/logo-google_12964_w250.jpg
 
-addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c \"cd \tmp; skipfish -h\"" "true" "Pentest"
+addmenu skipfish "A fully automated, active web application security reconnaissance tool." "bash -c 'cd /tmp; skipfish -h;bash'" "true" "Pentest"
 
 ##################################
 # maltego
@@ -718,7 +718,7 @@ fi
 
 downloadicon 'set' http://www.secmaniac.com/wp-content/uploads/2010/09/set-small-card1.png
 
-addBinEntry 'set' "/usr/share/Infond/bin/set/set"
+addBinEntry 'set' "sudo bash /usr/share/Infond/bin/set/set"
 
 addmenu 'set' "The social engineer toolkit." 'set' "true" "Pentest"
 
@@ -744,7 +744,7 @@ fi
 
 downloadicon hydra http://www.taraduncan-livre.com/wp-content/uploads/2009/04/tara-duncan-familier-hydre-familier-robin.jpg
 
-addmenu hydra "A very fast network logon cracker which support many different services." "bash -c \"cd /tmp; hydra ;bash\"" "true" "Pentest"
+addmenu hydra "A very fast network logon cracker which support many different services." "bash -c 'cd /tmp; hydra ;bash'" "true" "Pentest"
 
 
 ##################################
@@ -925,41 +925,8 @@ addmenu hextoasm "prints asm instructions from an hex strings ." "bash -c 'cd /t
 ##################################
 # rsa.py
 ##################################
-rsa_readme="source: http://www.amk.ca/python/writing/crypto-curiosa
+#source: http://www.amk.ca/python/writing/crypto-curiosa
 
-rsa.py (4 lines): Performs RSA public key encryption/decryption. It requires two arguments, and can accept a single option:  -d  for decryption (the default action is encryption). The first argument must be the required exponent, expressed in hexadecimal, and the second is the modulus, also in hex. You still have to choose the correct exponent, whether the  -d  option is present or not;  -d  simply changes the number of bytes read at a single time.
-
-As an example: Let us assume the modulus is 6819722537 (in hex, 0x1967cb529), the encryption exponent is 65537 (hex 0x10001), and the decryption exponent is 2889233921 (hex 0xac363601). Then, after converting the numbers to hex, we can encrypt and then decrypt by the following commands:
-
-        echo  Top secret message.  | rsa.py 10001 1967cb529 >ciphertext
-        cat ciphertext             | rsa.py -d ac363601 1967cb529 
-
-Here s the program. It s a line longer than the Perl version, but doesn t require that the dc desk calculator program be installed. (Perl doesn t have built-in large integers as Python does, so it has to fork a dc subprocess to do the computations.)
-
-#!/usr/local/bin/python 
-from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
- - ,a);d= -d in a;e,n=atol(p,16),atol(q,16);l=(len(q)+1)/2;o,inb=l-d,l-1+d
-while s:s=stdin.read(inb);s and map(stdout.write,map(lambda i,b=pow(reduce(
-lambda x,y:(x<<8L)+y,map(ord,s)),e,n):chr(b>>8*i&255),range(o-1,-1,-1)))
-
-Let s look at some of the tricks used to save space. A simple one: instead of using import string and then accessing functions such as string.atol, all the symbols in the string module are added to the current namespace by using from string import *.
-
-A common Python idiom to read lines from a file looks like this:
-
-while(1):
-    line = sys.stdin.readline()
-    if line == '': break     # readline() returns an empty string at EOF
-    ... do something with the line ...
-
-This is very bad for our line count. Python only allows at most two blocks per line, so you can t write code like for i in [1,2,3]: if i==2: print  Found 2! ; that will cause a syntax error. However, this would mean our I/O loop would take at least 3 lines, which is unacceptable. A solution is to exploit the fact that Python offers short-circuit evaluation. When asked to evaluate an expression like A and B, if A is false, there s no point in evaluating B, since the whole expression will be false no matter what B s value is. This is part of the Python language specification and not subject to change, because it s a useful behaviour. You can write an expression like booleanValue and timeConsumingFunction(), and know that timeConsumingFunction() will only be called if it can t be avoided, which is when booleanValue is true.
-
-Strings evaluate to true if they re not empty, and the empty string is considered to be false, so the above loop can then be rewritten as:
-
-while(line):
-    line = sys.stdin.readline()
-    line and someFunction(line)
-
-someFunction(line) is then only called if line is not the empty string, and the while loop ends when line becomes empty. This trick isn t recommended for use in Python programs that you want to be maintainable, but short-circuit evaluation is a useful feature that you should be aware of; conditions should be written with simple variables first, and function evaluations later, for faster execution by avoiding unnecessary function calls."
 
 echo "#!/usr/local/bin/python 
 from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
@@ -967,6 +934,8 @@ from sys import*;from string import*;a=argv;[s,p,q]=filter(lambda x:x[:1]!=
 while s:s=stdin.read(inb);s and map(stdout.write,map(lambda i,b=pow(reduce(
 lambda x,y:(x<<8L)+y,map(ord,s)),e,n):chr(b>>8*i&255),range(o-1,-1,-1)))
 " > /usr/share/Infond/bin/rsa.py
+
+rsa_readme="encrypt:   echo  Top secret message. | rsa.py 10001 1967cb529 >ciphertext     decrypt:   cat ciphertext | rsa.py -d ac363601 1967cb529"
 
 # add bin entry
 addBinEntry rsa.py "python /usr/share/Infond/bin/rsa.py \$1 \$2 \$3"
@@ -1344,7 +1313,6 @@ if [ -z "$(ls /usr/share/Infond/bin | grep framework)"  ];then
   log "+" "metasploit framework downloaded"
   chmod +x /tmp/framework*
   bash /tmp/framework*
-  rm /tmp/framework*
   log "+" "metasploit framework installed"
 else
   log "I" "metasploit framework already downloaded. Not updated."
