@@ -1092,7 +1092,7 @@ else
 fi
 
 # download icon
-downloadicon webscarab http://www.gnucitizen.org/images/owasp-small.jpg 
+downloadicon webscarab http://www.think-underground.com/public/logos/owasp.gif 
 
 # create webscarab.sh and add webscarab.sh shortcut in /usr/bin
 addBinEntry webscarab "java -jar /usr/share/Infond/bin/webscarab/webscarab.jar"
