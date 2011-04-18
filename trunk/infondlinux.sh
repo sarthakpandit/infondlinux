@@ -1312,7 +1312,7 @@ if [ -z "$(ls /usr/share/Infond/bin | grep framework)"  ];then
   wget http://updates.metasploit.com/data/releases/framework-3.6.0-linux-mini.run -nc -P /tmp
   log "+" "metasploit framework downloaded"
   chmod +x /tmp/framework*
-  bash /tmp/framework*
+  /tmp/framework*
   log "+" "metasploit framework installed"
 else
   log "I" "metasploit framework already downloaded. Not updated."
