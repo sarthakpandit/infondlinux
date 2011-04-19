@@ -942,7 +942,7 @@ addBinEntry rsa.py "python /usr/share/Infond/bin/rsa.py \$1 \$2 \$3"
 downloadicon rsa http://fr.academic.ru/pictures/frwiki/82/RSA_Security_logo_CMYK.jpg
  
 # add entry in Gnome menu
-addmenu rsa.py "encrypt:   echo  Top secret message. | rsa.py 10001 1967cb529 >ciphertext     decrypt:   cat ciphertext | rsa.py -d ac363601 1967cb529" "bash -c 'cd /tmp;echo \"encrypt:   echo  Top secret message. | rsa.py 10001 1967cb529 >ciphertext     decrypt:   cat ciphertext | rsa.py -d ac363601 1967cb529\";echo exemple:; echo echo  Top secret message | rsa.py 10001 1967cb529 > ciphertext; echo cat ciphertext | rsa.py -d ac363601 1967cb529;bash;'" "true" "Accessories" 
+addmenu rsa.py "encrypt:   echo  Top secret message. | rsa.py 10001 1967cb529 >ciphertext     decrypt:   cat ciphertext | rsa.py -d ac363601 1967cb529" "bash -c 'cd /tmp;echo \"encrypt:   echo  Top secret message. | rsa.py 10001 1967cb529 >ciphertext     decrypt:   cat ciphertext | rsa.py -d ac363601 1967cb529\";bash;'" "true" "Accessories" 
 
 
 
