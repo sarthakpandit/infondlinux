@@ -731,7 +731,7 @@ addmenu 'set' "The social engineer toolkit." 'set' "true" "Pentest"
 
 if [ -z "$(ls /usr/local/bin | grep Volatility)" ]; then
   wget https://www.volatilesystems.com/volatility/1.3/Volatility-1.3_Beta.tar.gz _nc -P /tmp
-  tar xzf /tmp/Volatility* -C /usr/share/Infond/bin
+  tar xzf /tmp/Volatility-1.3_Beta.tar.gz -C /usr/share/Infond/bin
   log "+" "volatility downloaded"
 else
   log "I" "volatility already in /usr/share/Infond/bin. Not downloaded."
@@ -739,7 +739,7 @@ fi
 
 downloadicon volatility http://cert.lexsi.com/weblog/images/forensics2.jpg
 
-addBinEntry volatility "python /usr/share/Infond/bin/Volatility*/volatility"
+addBinEntry volatility "python /usr/share/Infond/bin/Volatility*/volatility \$*"
 
 addmenu volatility "The Volatility Framework is a completely open collection of tools for the extraction of digital artifacts from volatile memory (RAM) samples." "bash -c 'cd /tmp; volatility ;bash'" "true" "Forensics"
 
