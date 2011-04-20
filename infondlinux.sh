@@ -69,6 +69,7 @@
 # - secure-delete
 # - nautilus-gksu
 # - sqlmap
+# - john the ripper
 
 # third party packages
 # - tor
@@ -1394,6 +1395,15 @@ downloadicon ascii http://ascii-table.com/img/table.gif
 
 # add entry in Gnome menu
 addmenu ascii "table ascii." "bash -c 'ascii -h;bash'" "true" "Accessories"
+
+
+###########################
+# john the ripper
+###########################
+
+aptinstall john
+downloadicon john http://www.tux-planet.fr/public/images/icons/lock-broken.png 
+addmenu john "John the Ripper password cracker." "bash -c 'cd /tmp;john;bash'" "true" "Accessories"
 
 
 ###########################
